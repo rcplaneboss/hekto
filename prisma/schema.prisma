@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// --- GLOBAL SETTINGS ---
+// This stores things like the store name, contact email, and social links
+// Usually, you only have one row in this table.
+// --- GLOBAL STORE SETTINGS ---
+model StoreSetting {
+  id            String   @id @default("global")
+  
+  // Header / Top Bar (From your screenshot)
+  topBarEmail   String   @default("mhhasanul@gmail.com")
+  topBarPhone   String   @default("(12345)67890")
+  allowLanguage Boolean  @default(true) // For the English dropdown
+  allowCurrency Boolean  @default(true) // For the USD dropdown
+  
+  // Brand
+  logoText      String   @default("Hekto")
+  
+  // Footer General (From your screenshot)
+  footerAddress String   @default("17 Princess Road, London, Greater London NW1 8JR, UK")
+  copyright     String   @default("©Webecy - All Rights Reserved")
+
+  updatedAt     DateTime @updatedAt
+}
+
+// --- NAVIGATION & FOOTER LINKS ---
+// Use this to manage the "Categories", "Customer Care", and "Pages" columns
+model LinkGroup {
+  id        String   @id @default(cuid())
+  title     String   // e.g., "Categories", "Customer Care"
+  section   LinkSection @default(FOOTER) 
+  links     NavLink[]
+  order     Int      @default(0) // To keep columns in order
+}
+
+model NavLink {
+  id          String    @id @default(cuid())
+  label       String    // e.g., "Laptops & Computers"
+  url         String    // e.g., "/category/laptops"
+  groupId     String
+  group       LinkGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  order       Int       @default(0)
+}
+
+enum LinkSection {
+  HEADER_MAIN // For Home, Pages, Products, Blog, Shop, Contact
+  FOOTER     
+}
+
+// --- CONTACT FORM SUBMISSIONS ---
+// For the "Contact Us" page in the Figma file
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// --- STATIC PAGES / FAQ ---
+// To manage the content of pages like "About Us" or "FAQ" without hardcoding
+model PageContent {
+  id        String   @id @default(cuid())
+  slug      String   @unique // e.g., "about-us", "faq"
+  title     String
+  content   String   @db.Text // Use JSON or Markdown here
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+// --- NEWSLETTER ---
+// Hekto usually has a "Subscribe to Newsletter" section in the footer
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+
+// --- HERO BANNER (Homepage Slider) ---
+model HeroBanner {
+  id              String   @id @default(cuid())
+  
+  // Marketing Content
+  subTitle        String   // e.g., "Best Furniture For Your Castle..."
+  mainTitle       String   // e.g., "New Furniture Collection Trends in 2024"
+  description     String   @db.Text
+  
+  // Call to Action (The Button)
+  buttonText      String   @default("Shop Now")
+  buttonLink      String   @default("/shop")
+
+  // Imagery
+  imageUrl        String   // The main product image (e.g., the Pink Chair)
+  offTagText      String?  // e.g., "50% off" (The circular tag in Hekto)
+
+  // Configuration
+  isActive        Boolean  @default(true)
+  order           Int      @default(0) // To control which slide comes first
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique // e.g., Y523201
+  price       Float
+  description String?
+  imageUrl    String
+  
+  // Logical tags: ["featured", "latest", "best-seller", "special-offer"]
+  tags        String[] 
+  
+  // Common attributes
+  colors      String[] // ["#05E6B7", "#F701A8", "#00009D"]
+  stock       Int      @default(0)
+  category    String?  // e.g., "Chairs"
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tags]) // Indexing tags makes fetching specific sections very fast
+}
