@@ -13,7 +13,7 @@ async function HeroSectionContent() {
   const banners = await prisma.heroBanner.findMany({
     where: { isActive: true },
     orderBy: { order: 'asc' },
-    take: 3
+    // take: 3
   });
 
   // If no banners exist, return nothing
