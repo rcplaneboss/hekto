@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import HeroSection from "@/components/HeroSection";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import LatestProducts from "@/components/LatestProducts";
+import HektoOffer from "@/components/HektoOffer";
 
 export default async function Home() {
   // Fetch all products needed for the homepage in one go
@@ -28,10 +29,10 @@ export default async function Home() {
     <main className="min-h-screen">
       <HeroSection />
       
-      {/* Passing only relevant products to each section */}
       <FeaturedProducts products={featured} />
       
       <LatestProducts products={latestSectionProducts} />
+      <HektoOffer />
     </main>
   );
 }

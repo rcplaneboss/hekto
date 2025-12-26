@@ -103,18 +103,48 @@ async function main() {
 
 
   // Add this inside your main() function in prisma/seed.ts
-await prisma.heroBanner.create({
-  data: {
-    subTitle: "Best Furniture For Your Castle...",
-    mainTitle: "New Furniture Collection Trends in 2024",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Magna in est adipiscing in phasellus non in justo.",
-    buttonText: "Shop Now",
-    buttonLink: "/shop",
-    imageUrl: "/images/hero-chair.png", // Replace with your actual asset path
-    offTagText: "50% off",
-    order: 1
-  }
-})
+// await prisma.heroBanner.create({
+//   data: {
+//     subTitle: "Best Furniture For Your Castle...",
+//     mainTitle: "New Furniture Collection Trends in 2024",
+//     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Magna in est adipiscing in phasellus non in justo.",
+//     buttonText: "Shop Now",
+//     buttonLink: "/shop",
+//     imageUrl: "/images/hero-chair.png", // Replace with your actual asset path
+//     offTagText: "50% off",
+//     order: 1
+//   }
+// })
+
+console.log("Seeding services...");
+  await prisma.service.createMany({
+    data: [
+      {
+        title: "24/7 Support",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+        iconUrl: "/images/free-delivery.png", // Adjust file names as needed
+        order: 1,
+      },
+      {
+        title: "Free Delivery",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+        iconUrl: "/images/cashback.png",
+        order: 2,
+      },
+      {
+        title: "Premium Quality",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+        iconUrl: "/images/premium-quality.png",
+        order: 3,
+      },
+      {
+        title: "Cash Back",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+        iconUrl: "/images/24-support.png",
+        order: 4,
+      },
+    ],
+  });
 
   console.log("Hekto Database has been seeded! 🌱")
 }

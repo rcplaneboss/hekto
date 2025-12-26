@@ -57,3 +57,8 @@ export type HeroBanner = Prisma.HeroBannerModel
  * 
  */
 export type Product = Prisma.ProductModel
+/**
+ * Model Service
+ * 
+ */
+export type Service = Prisma.ServiceModel
