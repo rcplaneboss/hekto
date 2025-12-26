@@ -9,14 +9,18 @@ export default function FeaturedCarouselWrapper({ products }: { products: any[] 
   const [itemsPerView, setItemsPerView] = useState(4);
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Swipe Tracking Refs
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   // Update items per view based on window size
   useEffect(() => {
     const updateItems = () => {
       if (window.innerWidth < 1024) {
-        setItemsPerView(1); // Mobile/Tablet: 1 slide at a time
+        setItemsPerView(1); 
       } else {
-        setItemsPerView(4); // Desktop: 4 slides at a time
+        setItemsPerView(4);
       }
     };
     updateItems();
@@ -37,7 +41,7 @@ export default function FeaturedCarouselWrapper({ products }: { products: any[] 
     });
   };
 
-  // GSAP Auto-play Logic
+  // Auto-play Logic
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setActiveIndex((prev) => {
@@ -45,14 +49,42 @@ export default function FeaturedCarouselWrapper({ products }: { products: any[] 
         goToSlide(next);
         return next;
       });
-    }, 5000); // 5 seconds
+    }, 5000);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [totalSlides]);
 
-  // Group products into chunks based on current screen size
+  // SWIPE LOGIC
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    if (isLeftSwipe && activeIndex < totalSlides - 1) {
+      goToSlide(activeIndex + 1);
+    } else if (isRightSwipe && activeIndex > 0) {
+      goToSlide(activeIndex - 1);
+    }
+
+    // Reset values
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   const chunks = [];
   for (let i = 0; i < products.length; i += itemsPerView) {
     chunks.push(products.slice(i, i + itemsPerView));
@@ -60,8 +92,12 @@ export default function FeaturedCarouselWrapper({ products }: { products: any[] 
 
   return (
     <div className="relative w-full">
-      {/* Container */}
-      <div className="overflow-hidden">
+      <div 
+        className="overflow-hidden touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div 
           ref={containerRef}
           className="flex"
@@ -89,7 +125,7 @@ export default function FeaturedCarouselWrapper({ products }: { products: any[] 
           <button
             key={i}
             onClick={() => {
-              if (timerRef.current) clearInterval(timerRef.current); // Pause on manual click
+              if (timerRef.current) clearInterval(timerRef.current);
               goToSlide(i);
             }}
             className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
