@@ -6,6 +6,16 @@ import { Search, ShoppingCart, Heart, Mail, Phone, Menu, X, Sun, Moon, Monitor }
 
 export default function HeaderClient({ settings, navLinks }: any) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false); // Track scroll for shadow
+
+  // Handle Scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // ---  THEME LOGIC ---
   const updateTheme = () => {
@@ -34,7 +44,10 @@ export default function HeaderClient({ settings, navLinks }: any) {
   };
 
   return (
-    <header className="w-full font-[Josefin_Sans] transition-colors duration-300">
+    /* Added sticky top-0 and z-50 to keep it above all other elements */
+    <header className={`w-full sticky top-0 z-50 font-[Josefin_Sans] transition-all duration-300 ${
+      isScrolled ? "shadow-md" : ""
+    }`}>
       {/* --- TOP BAR (Purple Bar) --- */}
       <div className="bg-[#7E33E0] text-white py-2 hidden md:block">
         <div className="container mx-auto flex justify-between items-center px-4">
@@ -48,7 +61,6 @@ export default function HeaderClient({ settings, navLinks }: any) {
           </div>
 
           <div className="flex items-center gap-5 text-sm">
-            {/* Theme Selector Dropdown */}
             <div className="relative group cursor-pointer flex items-center gap-1 py-1">
               Theme <Sun size={14} />
               <div className="absolute top-full right-0 bg-white dark:bg-slate-800 text-black dark:text-white shadow-2xl rounded-lg py-2 hidden group-hover:block z-[100] min-w-[130px] border border-gray-100 dark:border-slate-700">
@@ -74,14 +86,12 @@ export default function HeaderClient({ settings, navLinks }: any) {
       </div>
 
       {/* --- MAIN NAVIGATION --- */}
-      <nav className="bg-white dark:bg-slate-900 ">
+      <nav className="bg-white dark:bg-slate-900 border-b border-gray-50 dark:border-slate-800">
         <div className="container mx-auto px-4 h-20 flex justify-between items-center">
-          {/* Dynamic Logo */}
           <Link href="/" className="text-3xl font-bold text-[#151875] dark:text-white">
             {settings?.logoText || "Hekto"}
           </Link>
 
-          {/* DYNAMIC DESKTOP LINKS */}
           <div className="hidden lg:flex items-center gap-8 text-[#151875] dark:text-slate-300 font-medium">
             {navLinks.map((link: any) => (
               <Link 
@@ -94,7 +104,6 @@ export default function HeaderClient({ settings, navLinks }: any) {
             ))}
           </div>
 
-          {/* Search Box */}
           <div className="hidden md:flex items-center">
             <input
               type="text"
@@ -106,7 +115,6 @@ export default function HeaderClient({ settings, navLinks }: any) {
             </button>
           </div>
 
-          {/* Mobile Toggle */}
           <button className="lg:hidden text-[#151875] dark:text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -114,7 +122,7 @@ export default function HeaderClient({ settings, navLinks }: any) {
 
         {/* MOBILE DRAWER */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-white dark:bg-slate-900 border-t dark:border-slate-800 p-6 space-y-6 animate-in slide-in-from-top">
+          <div className="lg:hidden bg-white dark:bg-slate-900 border-t dark:border-slate-800 p-6 space-y-6 absolute w-full left-0 shadow-xl animate-in fade-in zoom-in duration-300">
             <div className="flex flex-col gap-4 text-[#151875] dark:text-white text-lg">
               {navLinks.map((link: any) => (
                 <Link key={link.id} href={link.url} onClick={() => setIsMenuOpen(false)}>
