@@ -11,7 +11,7 @@ export default async function HektoOffer() {
   return (
     <section className="py-12 md:py-20 bg-white dark:bg-slate-950 transition-colors">
       <div className="container mx-auto px-4 max-w-7xl">
-        <SectionHeading title="What Hekto Offer!" />
+        <SectionHeading title="What Waterms Offer!" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((service) => (
