@@ -61,7 +61,9 @@ export const ModelName = {
   Product: 'Product',
   Service: 'Service',
   PromoBanner: 'PromoBanner',
-  TrendingPromo: 'TrendingPromo'
+  TrendingPromo: 'TrendingPromo',
+  Category: 'Category',
+  DiscountItem: 'DiscountItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -179,9 +181,9 @@ export const ProductScalarFieldEnum = {
   tags: 'tags',
   colors: 'colors',
   stock: 'stock',
-  category: 'category',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  categoryId: 'categoryId'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -226,6 +228,33 @@ export const TrendingPromoScalarFieldEnum = {
 } as const
 
 export type TrendingPromoScalarFieldEnum = (typeof TrendingPromoScalarFieldEnum)[keyof typeof TrendingPromoScalarFieldEnum]
+
+
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
+
+
+export const DiscountItemScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  subtitle: 'subtitle',
+  description: 'description',
+  features: 'features',
+  buttonText: 'buttonText',
+  categoryId: 'categoryId',
+  productId: 'productId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DiscountItemScalarFieldEnum = (typeof DiscountItemScalarFieldEnum)[keyof typeof DiscountItemScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -5,6 +5,7 @@ import LatestProducts from "@/components/LatestProducts";
 import HektoOffer from "@/components/HektoOffer";
 import UniqueFeatures from "@/components/UniqueFeature";
 import TrendingProducts from "@/components/TrendingProducts";
+import DiscountSection from "@/components/DiscountSection";
 
 export default async function Home() {
   // 1. Fetch data in parallel
@@ -53,6 +54,21 @@ export default async function Home() {
     .filter(p => p.tags.includes("mini-list"))
     .slice(0, 3);
 
+
+    const discountCategories = await prisma.category.findMany({
+  where: {
+    discountItem: { isNot: null } // Only get categories that have a promo set up
+  },
+  include: {
+    discountItem: {
+      include: {
+        product: true // Get the image and details of the promoted product
+      }
+    }
+  },
+  orderBy: { name: 'asc' }
+});
+
   return (
     <main className="min-h-screen">
       <HeroSection />
@@ -71,6 +87,8 @@ export default async function Home() {
         promos={trendingPromos} 
         miniList={miniList} 
       />
+
+      <DiscountSection categories={discountCategories} />
     </main>
   );
 }

@@ -130,13 +130,17 @@ model Product {
   // Common attributes
   colors   String[] // ["#05E6B7", "#F701A8", "#00009D"]
   stock    Int      @default(0)
-  category String? // e.g., "Chairs"
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   promoBanners PromoBanner[]
 
   @@index([tags]) // Indexing tags makes fetching specific sections very fast
+
+  categoryId    String?
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  
+  discountItems DiscountItem[] // Products used as the "Hero" image for discount tabs
 }
 
 model Service {
@@ -176,4 +180,39 @@ model TrendingPromo {
   imageUrl  String
   bgColor   String   // e.g., "#FFF6FB" (Pinkish) or "#EEEFFB" (Blueish)
   isActive  Boolean  @default(true)
+}
+
+
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String        @unique // e.g., "Wood Chair", "Sofa Collection"
+  slug         String        @unique // e.g., "wood-chair"
+  
+  // Relations
+  products     Product[]     // One category has many products
+  discountItem DiscountItem? // One category has one specialized discount highlight
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model DiscountItem {
+  id              String   @id @default(cuid())
+  title           String   // e.g., "20% Discount Of All Products"
+  subtitle        String   // e.g., "Eams Sofa Compact"
+  description     String   @db.Text
+  features        String[] // Array of bullet points: ["Material expose like metals", "Simple neutral colours"]
+  buttonText      String   @default("Shop Now")
+  
+  // Relations
+  categoryId      String   @unique
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  // Link to a specific product to show its image
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

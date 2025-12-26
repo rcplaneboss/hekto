@@ -72,3 +72,13 @@ export type PromoBanner = Prisma.PromoBannerModel
  * 
  */
 export type TrendingPromo = Prisma.TrendingPromoModel
+/**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
+ * Model DiscountItem
+ * 
+ */
+export type DiscountItem = Prisma.DiscountItemModel
