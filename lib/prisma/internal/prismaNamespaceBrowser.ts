@@ -59,7 +59,8 @@ export const ModelName = {
   NewsletterSubscriber: 'NewsletterSubscriber',
   HeroBanner: 'HeroBanner',
   Product: 'Product',
-  Service: 'Service'
+  Service: 'Service',
+  PromoBanner: 'PromoBanner'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -197,6 +198,20 @@ export const ServiceScalarFieldEnum = {
 } as const
 
 export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
+export const PromoBannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  features: 'features',
+  productId: 'productId',
+  customImage: 'customImage',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PromoBannerScalarFieldEnum = (typeof PromoBannerScalarFieldEnum)[keyof typeof PromoBannerScalarFieldEnum]
 
 
 export const SortOrder = {

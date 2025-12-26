@@ -62,3 +62,8 @@ export type Product = Prisma.ProductModel
  * 
  */
 export type Service = Prisma.ServiceModel
+/**
+ * Model PromoBanner
+ * 
+ */
+export type PromoBanner = Prisma.PromoBannerModel

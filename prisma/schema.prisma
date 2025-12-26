@@ -13,52 +13,51 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // --- GLOBAL SETTINGS ---
 // This stores things like the store name, contact email, and social links
 // Usually, you only have one row in this table.
 // --- GLOBAL STORE SETTINGS ---
 model StoreSetting {
-  id            String   @id @default("global")
-  
-  // Header / Top Bar (From your screenshot)
-  topBarEmail   String   @default("mhhasanul@gmail.com")
-  topBarPhone   String   @default("(12345)67890")
-  allowLanguage Boolean  @default(true) // For the English dropdown
-  allowCurrency Boolean  @default(true) // For the USD dropdown
-  
-  // Brand
-  logoText      String   @default("Hekto")
-  
-  // Footer General (From your screenshot)
-  footerAddress String   @default("17 Princess Road, London, Greater London NW1 8JR, UK")
-  copyright     String   @default("©Webecy - All Rights Reserved")
+  id String @id @default("global")
 
-  updatedAt     DateTime @updatedAt
+  // Header / Top Bar (From your screenshot)
+  topBarEmail   String  @default("mhhasanul@gmail.com")
+  topBarPhone   String  @default("(12345)67890")
+  allowLanguage Boolean @default(true) // For the English dropdown
+  allowCurrency Boolean @default(true) // For the USD dropdown
+
+  // Brand
+  logoText String @default("Hekto")
+
+  // Footer General (From your screenshot)
+  footerAddress String @default("17 Princess Road, London, Greater London NW1 8JR, UK")
+  copyright     String @default("©Webecy - All Rights Reserved")
+
+  updatedAt DateTime @updatedAt
 }
 
 // --- NAVIGATION & FOOTER LINKS ---
 // Use this to manage the "Categories", "Customer Care", and "Pages" columns
 model LinkGroup {
-  id        String   @id @default(cuid())
-  title     String   // e.g., "Categories", "Customer Care"
-  section   LinkSection @default(FOOTER) 
-  links     NavLink[]
-  order     Int      @default(0) // To keep columns in order
+  id      String      @id @default(cuid())
+  title   String // e.g., "Categories", "Customer Care"
+  section LinkSection @default(FOOTER)
+  links   NavLink[]
+  order   Int         @default(0) // To keep columns in order
 }
 
 model NavLink {
-  id          String    @id @default(cuid())
-  label       String    // e.g., "Laptops & Computers"
-  url         String    // e.g., "/category/laptops"
-  groupId     String
-  group       LinkGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  order       Int       @default(0)
+  id      String    @id @default(cuid())
+  label   String // e.g., "Laptops & Computers"
+  url     String // e.g., "/category/laptops"
+  groupId String
+  group   LinkGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  order   Int       @default(0)
 }
 
 enum LinkSection {
   HEADER_MAIN // For Home, Pages, Products, Blog, Shop, Contact
-  FOOTER     
+  FOOTER
 }
 
 // --- CONTACT FORM SUBMISSIONS ---
@@ -92,63 +91,78 @@ model NewsletterSubscriber {
   createdAt DateTime @default(now())
 }
 
-
 // --- HERO BANNER (Homepage Slider) ---
 model HeroBanner {
-  id              String   @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Marketing Content
-  subTitle        String   // e.g., "Best Furniture For Your Castle..."
-  mainTitle       String   // e.g., "New Furniture Collection Trends in 2024"
-  description     String   @db.Text
-  
+  subTitle    String // e.g., "Best Furniture For Your Castle..."
+  mainTitle   String // e.g., "New Furniture Collection Trends in 2024"
+  description String @db.Text
+
   // Call to Action (The Button)
-  buttonText      String   @default("Shop Now")
-  buttonLink      String   @default("/shop")
+  buttonText String @default("Shop Now")
+  buttonLink String @default("/shop")
 
   // Imagery
-  imageUrl        String   // The main product image (e.g., the Pink Chair)
-  offTagText      String?  // e.g., "50% off" (The circular tag in Hekto)
+  imageUrl   String // The main product image (e.g., the Pink Chair)
+  offTagText String? // e.g., "50% off" (The circular tag in Hekto)
 
   // Configuration
-  isActive        Boolean  @default(true)
-  order           Int      @default(0) // To control which slide comes first
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  isActive  Boolean  @default(true)
+  order     Int      @default(0) // To control which slide comes first
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  code        String   @unique // e.g., Y523201
-  price       Float
-  discountPercentage Float?   @default(0) // New field: e.g., 20.0 for 20% off
-  description String?
-  imageUrl    String
-  
+  id                 String  @id @default(cuid())
+  name               String
+  code               String  @unique // e.g., Y523201
+  price              Float
+  discountPercentage Float?  @default(0) // New field: e.g., 20.0 for 20% off
+  description        String?
+  imageUrl           String
+
   // Logical tags: ["featured", "latest", "best-seller", "special-offer"]
-  tags        String[] 
-  
+  tags String[]
+
   // Common attributes
-  colors      String[] // ["#05E6B7", "#F701A8", "#00009D"]
-  stock       Int      @default(0)
-  category    String?  // e.g., "Chairs"
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  colors   String[] // ["#05E6B7", "#F701A8", "#00009D"]
+  stock    Int      @default(0)
+  category String? // e.g., "Chairs"
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  promoBanners PromoBanner[]
 
   @@index([tags]) // Indexing tags makes fetching specific sections very fast
 }
-
 
 model Service {
   id          String   @id @default(cuid())
   title       String
   description String
-  iconUrl     String?  // For uploaded images
-  iconName    String?  // For Lucide icon names like "Truck", "Headphones"
+  iconUrl     String? // For uploaded images
+  iconName    String? // For Lucide icon names like "Truck", "Headphones"
   order       Int      @default(0) // To control display order
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model PromoBanner {
+  id       String   @id @default(cuid())
+  title    String // e.g., "Unique Features Of Latest & Trending Products"
+  features String[] // ["All frames constructed...", "Reinforced with...", etc.]
+
+  // Relation to the product for the "Add to Cart" functionality and price
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  // Optional: Allow custom image if you don't want to use the product's default image
+  customImage String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

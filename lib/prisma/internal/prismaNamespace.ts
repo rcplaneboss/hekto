@@ -392,7 +392,8 @@ export const ModelName = {
   NewsletterSubscriber: 'NewsletterSubscriber',
   HeroBanner: 'HeroBanner',
   Product: 'Product',
-  Service: 'Service'
+  Service: 'Service',
+  PromoBanner: 'PromoBanner'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "storeSetting" | "linkGroup" | "navLink" | "contactSubmission" | "pageContent" | "newsletterSubscriber" | "heroBanner" | "product" | "service"
+    modelProps: "storeSetting" | "linkGroup" | "navLink" | "contactSubmission" | "pageContent" | "newsletterSubscriber" | "heroBanner" | "product" | "service" | "promoBanner"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1078,6 +1079,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PromoBanner: {
+      payload: Prisma.$PromoBannerPayload<ExtArgs>
+      fields: Prisma.PromoBannerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PromoBannerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PromoBannerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>
+        }
+        findFirst: {
+          args: Prisma.PromoBannerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PromoBannerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>
+        }
+        findMany: {
+          args: Prisma.PromoBannerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>[]
+        }
+        create: {
+          args: Prisma.PromoBannerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>
+        }
+        createMany: {
+          args: Prisma.PromoBannerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PromoBannerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>[]
+        }
+        delete: {
+          args: Prisma.PromoBannerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>
+        }
+        update: {
+          args: Prisma.PromoBannerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>
+        }
+        deleteMany: {
+          args: Prisma.PromoBannerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PromoBannerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PromoBannerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>[]
+        }
+        upsert: {
+          args: Prisma.PromoBannerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoBannerPayload>
+        }
+        aggregate: {
+          args: Prisma.PromoBannerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePromoBanner>
+        }
+        groupBy: {
+          args: Prisma.PromoBannerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PromoBannerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PromoBannerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PromoBannerCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1236,6 +1311,20 @@ export const ServiceScalarFieldEnum = {
 } as const
 
 export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
+export const PromoBannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  features: 'features',
+  productId: 'productId',
+  customImage: 'customImage',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PromoBannerScalarFieldEnum = (typeof PromoBannerScalarFieldEnum)[keyof typeof PromoBannerScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1448,6 +1537,7 @@ export type GlobalOmitConfig = {
   heroBanner?: Prisma.HeroBannerOmit
   product?: Prisma.ProductOmit
   service?: Prisma.ServiceOmit
+  promoBanner?: Prisma.PromoBannerOmit
 }
 
 /* Types for Logging */
