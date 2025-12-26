@@ -124,7 +124,7 @@ model Product {
   description        String?
   imageUrl           String
 
-  // Logical tags: ["featured", "latest", "best-seller", "special-offer"]
+  // Logical tags: ["featured", "latest", "best-seller", "special-offer", trending]
   tags String[]
 
   // Common attributes
@@ -165,4 +165,15 @@ model PromoBanner {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+
+model TrendingPromo {
+  id        String   @id @default(cuid())
+  title     String   // e.g., "23% off in all products"
+  linkText  String   // e.g., "Shop Now" or "View Collection"
+  linkUrl   String
+  imageUrl  String
+  bgColor   String   // e.g., "#FFF6FB" (Pinkish) or "#EEEFFB" (Blueish)
+  isActive  Boolean  @default(true)
 }

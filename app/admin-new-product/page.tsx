@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createProduct } from "@/app/actions/product";
 import { ChevronDown, X, Plus } from "lucide-react";
 
-const AVAILABLE_TAGS = ["featured", "latest", "bestseller", "special", "new arrival"];
+const AVAILABLE_TAGS = ["featured", "latest", "bestseller", "special", "new arrival", "trending", "mini-list"];
 
 export default function AddProductForm() {
   const [loading, setLoading] = useState(false);

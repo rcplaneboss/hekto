@@ -89,3 +89,8 @@ export type Service = Prisma.ServiceModel
  * 
  */
 export type PromoBanner = Prisma.PromoBannerModel
+/**
+ * Model TrendingPromo
+ * 
+ */
+export type TrendingPromo = Prisma.TrendingPromoModel

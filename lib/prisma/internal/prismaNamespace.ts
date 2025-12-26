@@ -393,7 +393,8 @@ export const ModelName = {
   HeroBanner: 'HeroBanner',
   Product: 'Product',
   Service: 'Service',
-  PromoBanner: 'PromoBanner'
+  PromoBanner: 'PromoBanner',
+  TrendingPromo: 'TrendingPromo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "storeSetting" | "linkGroup" | "navLink" | "contactSubmission" | "pageContent" | "newsletterSubscriber" | "heroBanner" | "product" | "service" | "promoBanner"
+    modelProps: "storeSetting" | "linkGroup" | "navLink" | "contactSubmission" | "pageContent" | "newsletterSubscriber" | "heroBanner" | "product" | "service" | "promoBanner" | "trendingPromo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TrendingPromo: {
+      payload: Prisma.$TrendingPromoPayload<ExtArgs>
+      fields: Prisma.TrendingPromoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TrendingPromoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TrendingPromoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>
+        }
+        findFirst: {
+          args: Prisma.TrendingPromoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TrendingPromoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>
+        }
+        findMany: {
+          args: Prisma.TrendingPromoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>[]
+        }
+        create: {
+          args: Prisma.TrendingPromoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>
+        }
+        createMany: {
+          args: Prisma.TrendingPromoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TrendingPromoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>[]
+        }
+        delete: {
+          args: Prisma.TrendingPromoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>
+        }
+        update: {
+          args: Prisma.TrendingPromoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>
+        }
+        deleteMany: {
+          args: Prisma.TrendingPromoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TrendingPromoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TrendingPromoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>[]
+        }
+        upsert: {
+          args: Prisma.TrendingPromoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrendingPromoPayload>
+        }
+        aggregate: {
+          args: Prisma.TrendingPromoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTrendingPromo>
+        }
+        groupBy: {
+          args: Prisma.TrendingPromoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TrendingPromoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TrendingPromoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TrendingPromoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1325,6 +1400,19 @@ export const PromoBannerScalarFieldEnum = {
 } as const
 
 export type PromoBannerScalarFieldEnum = (typeof PromoBannerScalarFieldEnum)[keyof typeof PromoBannerScalarFieldEnum]
+
+
+export const TrendingPromoScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  linkText: 'linkText',
+  linkUrl: 'linkUrl',
+  imageUrl: 'imageUrl',
+  bgColor: 'bgColor',
+  isActive: 'isActive'
+} as const
+
+export type TrendingPromoScalarFieldEnum = (typeof TrendingPromoScalarFieldEnum)[keyof typeof TrendingPromoScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1538,6 +1626,7 @@ export type GlobalOmitConfig = {
   product?: Prisma.ProductOmit
   service?: Prisma.ServiceOmit
   promoBanner?: Prisma.PromoBannerOmit
+  trendingPromo?: Prisma.TrendingPromoOmit
 }
 
 /* Types for Logging */

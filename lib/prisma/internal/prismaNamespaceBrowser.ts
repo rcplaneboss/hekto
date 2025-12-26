@@ -60,7 +60,8 @@ export const ModelName = {
   HeroBanner: 'HeroBanner',
   Product: 'Product',
   Service: 'Service',
-  PromoBanner: 'PromoBanner'
+  PromoBanner: 'PromoBanner',
+  TrendingPromo: 'TrendingPromo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -212,6 +213,19 @@ export const PromoBannerScalarFieldEnum = {
 } as const
 
 export type PromoBannerScalarFieldEnum = (typeof PromoBannerScalarFieldEnum)[keyof typeof PromoBannerScalarFieldEnum]
+
+
+export const TrendingPromoScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  linkText: 'linkText',
+  linkUrl: 'linkUrl',
+  imageUrl: 'imageUrl',
+  bgColor: 'bgColor',
+  isActive: 'isActive'
+} as const
+
+export type TrendingPromoScalarFieldEnum = (typeof TrendingPromoScalarFieldEnum)[keyof typeof TrendingPromoScalarFieldEnum]
 
 
 export const SortOrder = {
