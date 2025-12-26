@@ -16,12 +16,10 @@ export default function DiscountSection({ categories }: { categories: any[] }) {
   const currentData = categories.find((cat) => cat.id === activeTab)?.discountItem;
 
   useGSAP(() => {
-    // If no data yet, don't initialize GSAP
     if (!categories || categories.length === 0) return;
 
     gsap.registerPlugin(ScrollTrigger);
     
-    // Fail-safe: Ensure elements are visible if the trigger somehow fails
     const entranceElements = gsap.utils.toArray(".discount-entrance");
     
     const tl = gsap.timeline({
@@ -29,7 +27,6 @@ export default function DiscountSection({ categories }: { categories: any[] }) {
         trigger: sectionRef.current,
         start: "top 80%",
         toggleActions: "play none none none",
-        // Force refresh to ensure positions are calculated after hydration
         onEnter: () => ScrollTrigger.refresh(), 
       }
     });
@@ -45,8 +42,10 @@ export default function DiscountSection({ categories }: { categories: any[] }) {
         duration: 0.8, 
         stagger: 0.15, 
         ease: "power2.out",
-        // This is key: it tells GSAP to clean up styles after animating
-        onComplete: () => gsap.set(entranceElements, { clearProps: "all" })
+        // Wrapped in braces to fix the Type Error
+        onComplete: () => { 
+          gsap.set(entranceElements, { clearProps: "all" }); 
+        }
       }
     );
 
