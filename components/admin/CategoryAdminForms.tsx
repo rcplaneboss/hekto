@@ -11,16 +11,24 @@ export default function CategoryAdminForms({ categories, products }: { categorie
 
   return (
     <div className="space-y-12">
-      {/* SECTION 1: CREATE CATEGORY */}
-      <section className="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-2xl border dark:border-slate-800">
-        <h3 className="text-xl font-bold font-josefin text-[#151875] dark:text-white mb-4">1. Create New Category</h3>
-        <form action={createCategory} className="flex gap-4">
-          <input name="name" placeholder="e.g., Wood Chair" className={inputClass} required />
-          <button className="bg-[#151875] dark:bg-slate-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">
-            Add
-          </button>
-        </form>
-      </section>
+     {/* SECTION 1: CREATE CATEGORY */}
+<section className="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-2xl border dark:border-slate-800">
+  <h3 className="text-xl font-bold font-josefin text-[#151875] dark:text-white mb-4">
+    1. Create New Category
+  </h3>
+  <form 
+    action={async (formData) => { 
+      await createCategory(formData); 
+      // Optional: you can add an alert or reset here
+    }} 
+    className="flex gap-4"
+  >
+    <input name="name" placeholder="e.g. Wood Chair" className={inputClass} required />
+    <button className="bg-[#151875] dark:bg-slate-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+      Add
+    </button>
+  </form>
+</section>
 
       {/* SECTION 2: CONFIGURE DISCOUNT HIGHLIGHT */}
       <section className="bg-white dark:bg-slate-900 p-8 rounded-2xl border dark:border-slate-800 shadow-sm">
