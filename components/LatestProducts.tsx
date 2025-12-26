@@ -28,7 +28,7 @@ export default function LatestProducts({ products }: { products: any[] }) {
         <SectionHeading title="Latest Products" />
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap justify-center gap-4 md:gap-12 mb-12">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-12 mb-12 font-josefin text-sm">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -55,55 +55,88 @@ export default function LatestProducts({ products }: { products: any[] }) {
   );
 }
 function LatestProductCard({ product }: { product: any }) {
+  const [isActive, setIsActive] = useState(false);
+  
+  const hasDiscount = product.discountPercentage && product.discountPercentage > 0;
+  const originalPrice = hasDiscount 
+    ? product.price / (1 - product.discountPercentage / 100)
+    : null;
+
+  const toggleActive = () => {
+    if (window.matchMedia("(max-width: 1024px)").matches) {
+      setIsActive(!isActive);
+    }
+  };
+
   return (
-    /* Added max-w and reduced vertical spacing */
-    <div className="group flex flex-col items-center w-full max-w-[320px] mx-auto transition-all">
-      <div className="relative w-full h-[250px] bg-[#F7F7F7] dark:bg-slate-800 flex items-center justify-center overflow-hidden rounded-sm mb-3">
+    <div 
+      onClick={toggleActive}
+      className="group flex flex-col items-center w-full max-w-[320px] mx-auto transition-all cursor-pointer touch-manipulation"
+    >
+      <div className={`relative w-full h-[250px] flex items-center justify-center overflow-hidden rounded-sm mb-3 transition-colors duration-300 ${
+        isActive ? "bg-[#ebedf3] dark:bg-slate-700" : "bg-[#F7F7F7] dark:bg-slate-800 group-hover:bg-bg-slate-800"
+      }`}>
         
-        {/* 'Sale' badge - smaller text */}
-        {product.tags.includes("special") && (
+        {hasDiscount && (
           <div className="absolute top-3 left-3 z-10">
-             <span className="bg-[#3F509E] text-white px-3 py-0.5 rounded-sm text-[10px] -rotate-12 inline-block font-josefin shadow-sm">
-               Sale
+             <span className="bg-[#3F509E] text-white px-3 py-0.5 rounded-sm text-[10px] -rotate-12 inline-block font-josefin shadow-md uppercase">
+               -{product.discountPercentage}%
              </span>
           </div>
         )}
 
-        {/* Icons - reduced size and spacing */}
-        <div className="absolute bottom-4 left-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-[-15px] group-hover:translate-x-0 transition-all duration-300">
-          <button className="p-1.5 bg-[#EEEFFB] text-[#151875] rounded-full hover:bg-[#FB2E86] hover:text-white transition-colors shadow-sm">
+        {/* Action Icons Logic */}
+        <div className={`absolute bottom-4 left-3 flex flex-col gap-2 transition-all duration-300 z-20 ${
+          isActive 
+            ? "opacity-100 translate-x-0" 
+            : "opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0"
+        }`}>
+          <button 
+            onClick={(e) => e.stopPropagation()}
+            className="p-1.5 bg-white dark:bg-slate-600 text-[#151875] dark:text-white rounded-full hover:bg-[#FB2E86] hover:text-white transition-colors shadow-sm"
+          >
             <ShoppingCart size={14} />
           </button>
-          <button className="p-1.5 text-[#151875] hover:text-[#FB2E86] transition-colors">
+          <button 
+            onClick={(e) => e.stopPropagation()}
+            className="p-1.5 text-[#151875] dark:text-white hover:text-[#FB2E86] transition-colors"
+          >
             <Heart size={14} />
           </button>
-          <button className="p-1.5 text-[#151875] hover:text-[#FB2E86] transition-colors">
+          <button 
+            onClick={(e) => e.stopPropagation()}
+            className="p-1.5 text-[#151875] dark:text-white hover:text-[#FB2E86] transition-colors"
+          >
             <Search size={14} />
           </button>
         </div>
 
-        {/* Reduced image size */}
-        <div className="relative w-36 h-36 md:w-40 md:h-40">
+        <div className={`relative w-36 h-36 md:w-40 md:h-40 transition-transform duration-500 ${
+          isActive ? "scale-105" : "group-hover:scale-105"
+        }`}>
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-contain transition-transform duration-500 group-hover:scale-105"
+            className="object-contain"
             sizes="200px"
           />
         </div>
       </div>
 
-      {/* Info Row - Tighter layout */}
       <div className="w-full flex justify-between items-center text-[13px] px-1">
-        <h4 className="text-[#151875] dark:text-white font-josefin border-b-2 border-transparent group-hover:border-[#EEEFFB] transition-all truncate max-w-[60%]">
+        <h4 className={`font-josefin border-b-2 border-transparent transition-all truncate max-w-[60%] ${
+          isActive ? "text-[#FB2E86] border-[#EEEFFB]" : "text-[#151875] dark:text-white group-hover:text-[#FB2E86] group-hover:border-[#EEEFFB]"
+        }`}>
           {product.name}
         </h4>
         <div className="flex gap-2 items-center font-josefin whitespace-nowrap">
           <span className="text-[#151875] dark:text-white font-bold">${product.price.toFixed(2)}</span>
-          <span className="text-[#FB2E86] line-through text-[11px] opacity-70">
-            ${(product.price * 1.3).toFixed(2)}
-          </span>
+          {hasDiscount && (
+            <span className="text-[#FB2E86] line-through text-[11px] opacity-70">
+              ${originalPrice?.toFixed(2)}
+            </span>
+          )}
         </div>
       </div>
     </div>

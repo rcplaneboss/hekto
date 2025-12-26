@@ -123,6 +123,7 @@ model Product {
   name        String
   code        String   @unique // e.g., Y523201
   price       Float
+  discountPercentage Float?   @default(0) // New field: e.g., 20.0 for 20% off
   description String?
   imageUrl    String
   
