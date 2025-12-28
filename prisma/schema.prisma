@@ -232,3 +232,22 @@ model Newsletter {
   bgImage   String   @default("/images/newsletter-bg.png")
   buttonText String  @default("Shop Now")
 }
+
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  content     String    @db.Text // For the full blog body
+  excerpt     String    @db.Text // The short text shown on the card
+  author      String    @default("SoberAli")
+  mainImage   String    // The primary card image
+  publishedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Future-proofing for the single page
+  category    String?
+  tags        String[]  @default([])
+  isFeatured  Boolean   @default(false)
+}

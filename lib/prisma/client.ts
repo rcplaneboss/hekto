@@ -104,3 +104,18 @@ export type Category = Prisma.CategoryModel
  * 
  */
 export type DiscountItem = Prisma.DiscountItemModel
+/**
+ * Model Brand
+ * 
+ */
+export type Brand = Prisma.BrandModel
+/**
+ * Model Newsletter
+ * 
+ */
+export type Newsletter = Prisma.NewsletterModel
+/**
+ * Model BlogPost
+ * 
+ */
+export type BlogPost = Prisma.BlogPostModel

@@ -117,34 +117,72 @@ async function main() {
 // })
 
 console.log("Seeding services...");
-  await prisma.service.createMany({
-    data: [
-      {
-        title: "24/7 Support",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
-        iconUrl: "/images/free-delivery.png", // Adjust file names as needed
-        order: 1,
-      },
-      {
-        title: "Free Delivery",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
-        iconUrl: "/images/cashback.png",
-        order: 2,
-      },
-      {
-        title: "Premium Quality",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
-        iconUrl: "/images/premium-quality.png",
-        order: 3,
-      },
-      {
-        title: "Cash Back",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
-        iconUrl: "/images/24-support.png",
-        order: 4,
-      },
-    ],
-  });
+  // await prisma.service.createMany({
+  //   data: [
+  //     {
+  //       title: "24/7 Support",
+  //       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+  //       iconUrl: "/images/free-delivery.png", // Adjust file names as needed
+  //       order: 1,
+  //     },
+  //     {
+  //       title: "Free Delivery",
+  //       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+  //       iconUrl: "/images/cashback.png",
+  //       order: 2,
+  //     },
+  //     {
+  //       title: "Premium Quality",
+  //       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+  //       iconUrl: "/images/premium-quality.png",
+  //       order: 3,
+  //     },
+  //     {
+  //       title: "Cash Back",
+  //       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Massa purus gravida.",
+  //       iconUrl: "/images/24-support.png",
+  //       order: 4,
+  //     },
+  //   ],
+  // });
+
+
+
+  const blogs = [
+    {
+      title: "Top essential Trends in 2021",
+      slug: "top-essential-trends-2021-1",
+      author: "SoberAli",
+      excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
+      content: "Full blog content goes here for the single page view...",
+      mainImage: "/images/blog-1.png", // Replace with your actual image path
+      publishedAt: new Date("2020-08-21"),
+    },
+    {
+      title: "Top essential trends in 2021",
+      slug: "top-essential-trends-2021-2",
+      author: "Surfauxion",
+      excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
+      content: "Full blog content goes here...",
+      mainImage: "/images/blog-2.png",
+      publishedAt: new Date("2020-08-21"),
+    },
+    {
+      title: "Top essential Trends in 2021",
+      slug: "top-essential-trends-2021-3",
+      author: "SoberAli",
+      excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
+      content: "Full blog content goes here...",
+      mainImage: "/images/blog-3.png",
+      publishedAt: new Date("2020-08-21"),
+    },
+  ];
+
+  for (const blog of blogs) {
+    await prisma.blogPost.create({
+      data: blog,
+    });
+  }
 
   console.log("Hekto Database has been seeded! 🌱")
 }

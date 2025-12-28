@@ -63,7 +63,10 @@ export const ModelName = {
   PromoBanner: 'PromoBanner',
   TrendingPromo: 'TrendingPromo',
   Category: 'Category',
-  DiscountItem: 'DiscountItem'
+  DiscountItem: 'DiscountItem',
+  Brand: 'Brand',
+  Newsletter: 'Newsletter',
+  BlogPost: 'BlogPost'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -257,6 +260,46 @@ export const DiscountItemScalarFieldEnum = {
 } as const
 
 export type DiscountItemScalarFieldEnum = (typeof DiscountItemScalarFieldEnum)[keyof typeof DiscountItemScalarFieldEnum]
+
+
+export const BrandScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  imageUrl: 'imageUrl',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+} as const
+
+export type BrandScalarFieldEnum = (typeof BrandScalarFieldEnum)[keyof typeof BrandScalarFieldEnum]
+
+
+export const NewsletterScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  bgImage: 'bgImage',
+  buttonText: 'buttonText'
+} as const
+
+export type NewsletterScalarFieldEnum = (typeof NewsletterScalarFieldEnum)[keyof typeof NewsletterScalarFieldEnum]
+
+
+export const BlogPostScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  content: 'content',
+  excerpt: 'excerpt',
+  author: 'author',
+  mainImage: 'mainImage',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  category: 'category',
+  tags: 'tags',
+  isFeatured: 'isFeatured'
+} as const
+
+export type BlogPostScalarFieldEnum = (typeof BlogPostScalarFieldEnum)[keyof typeof BlogPostScalarFieldEnum]
 
 
 export const SortOrder = {

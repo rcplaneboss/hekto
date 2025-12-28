@@ -8,9 +8,11 @@ import TrendingProducts from "@/components/TrendingProducts";
 import DiscountSection from "@/components/DiscountSection";
 import TopCategories from "@/components/TopCategories";
 import NewsletterSection from "@/components/NewsletterSection";
+import BrandLogos from "@/components/BrandLogos";
+import LatestBlog from "@/components/LatestBlog";
 
 export default async function Home() {
-  const [allHomeProducts, activePromo, trendingPromos, topCategories, discountCategories] = await Promise.all([
+  const [allHomeProducts, activePromo, trendingPromos, topCategories, discountCategories, brands, latestBlogs] = await Promise.all([
     prisma.product.findMany({
       where: {
         OR: [
@@ -33,7 +35,7 @@ export default async function Home() {
       take: 2,
       orderBy: { id: 'asc' }
     }),
-    // 1. Check if showOnTop is actually true in DB
+
     prisma.category.findMany({
       where: { showOnTop: true },
       orderBy: { name: 'asc' }
@@ -44,22 +46,22 @@ export default async function Home() {
         discountItem: { include: { product: true } }
       },
       orderBy: { name: 'asc' }
+    }),
+
+    prisma.brand.findMany({ where: { isActive: true } }),
+
+    await prisma.blogPost.findMany({
+      orderBy: {
+        publishedAt: 'desc', 
+      },
+      take: 3,
     })
   ]);
 
-  // --- SERVER SIDE LOGGING ---
-  console.log("---------- DATABASE CHECK ----------");
-  console.log("Top Categories Count:", topCategories.length);
-  if (topCategories.length > 0) {
-    console.log("First Category Name:", topCategories[0].name);
-    console.log("First Category Image:", topCategories[0].imageUrl);
-  } else {
-    console.log("WARNING: No categories found with showOnTop: true");
-  }
-  console.log("------------------------------------");
+
 
   const featured = allHomeProducts.filter(p => p.tags.includes("featured"));
-  const latestSectionProducts = allHomeProducts.filter(p => 
+  const latestSectionProducts = allHomeProducts.filter(p =>
     p.tags.includes("latest") || p.tags.includes("bestseller") || p.tags.includes("special")
   );
   const trendingGrid = allHomeProducts.filter(p => p.tags.includes("trending")).slice(0, 4);
@@ -68,26 +70,28 @@ export default async function Home() {
   return (
     <main className="min-h-screen">
       <HeroSection />
-      <FeaturedProducts products={featured} />
-      <LatestProducts products={latestSectionProducts} />
+      {featured && <FeaturedProducts products={featured} />}
+      {latestSectionProducts && <LatestProducts products={latestSectionProducts} />}
       <HektoOffer />
       {activePromo && <UniqueFeatures promo={activePromo} />}
-      <TrendingProducts 
-        products={trendingGrid} 
-        promos={trendingPromos} 
-        miniList={miniList} 
-      />
-      <DiscountSection categories={discountCategories} />
+      {(trendingGrid || miniList || trendingPromos) && <TrendingProducts
+        products={trendingGrid}
+        promos={trendingPromos}
+        miniList={miniList}
+      />}
+      {discountCategories && <DiscountSection categories={discountCategories} />}
 
-      {/* Adding a 'key' here forces the component to re-render 
-         completely if the data changes/arrives late.
-      */}
-      <TopCategories 
-        key={topCategories.length} 
-        categories={topCategories} 
-      />
+
+
+      {topCategories && <TopCategories
+        key={topCategories.length}
+        categories={topCategories}
+      />}
 
       <NewsletterSection />
+      {brands && <BrandLogos brands={brands} />}
+
+      {latestBlogs && <LatestBlog blogs={latestBlogs} />}
     </main>
   );
 }
