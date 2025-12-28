@@ -183,15 +183,15 @@ model TrendingPromo {
 }
 
 
-
 model Category {
   id           String        @id @default(cuid())
-  name         String        @unique // e.g., "Wood Chair", "Sofa Collection"
-  slug         String        @unique // e.g., "wood-chair"
+  name         String        @unique 
+  slug         String        @unique
+  imageUrl     String?      
   
-  // Relations
-  products     Product[]     // One category has many products
-  discountItem DiscountItem? // One category has one specialized discount highlight
+  products     Product[]     
+  discountItem DiscountItem? 
+  showOnTop    Boolean       @default(false) 
   
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
