@@ -12,7 +12,7 @@ export default function BrandLogos({ brands }: { brands: any[] }) {
   ];
 
   return (
-    <div className="container mx-auto py-16 px-6 dark:bg-slate-950">
+    <div className="  py-16 w-screen dark:bg-slate-950">
       <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
         {displayBrands.map((brand, idx) => (
           <div 
