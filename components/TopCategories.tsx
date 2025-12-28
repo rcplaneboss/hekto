@@ -9,21 +9,17 @@ export default function TopCategories({ categories }: { categories: any[] }) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
+  
+  // Swipe Tracking
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
 
   useEffect(() => {
     const updateItemsPerView = () => {
-      // If window width is >= 1024px (lg), we show 4 items
-      if (window.innerWidth >= 1024) {
-        setItemsPerView(4);
-      } else if (window.innerWidth >= 640) {
-        // Tablet/Small Desktop
-        setItemsPerView(2);
-      } else {
-        // Mobile
-        setItemsPerView(1);
-      }
+      if (window.innerWidth >= 1024) setItemsPerView(4);
+      else if (window.innerWidth >= 640) setItemsPerView(2);
+      else setItemsPerView(1);
     };
-
     updateItemsPerView();
     window.addEventListener("resize", updateItemsPerView);
     return () => window.removeEventListener("resize", updateItemsPerView);
@@ -31,19 +27,41 @@ export default function TopCategories({ categories }: { categories: any[] }) {
 
   if (!categories || categories.length === 0) return null;
 
-  // Calculate dots based on current view (e.g., if mobile, 1 item per slide)
   const totalDots = Math.ceil(categories.length / itemsPerView);
 
   const slideTo = (index: number) => {
     if (!sliderRef.current) return;
-    setCurrentIndex(index);
+    // Prevent out of bounds
+    const targetIndex = Math.max(0, Math.min(index, totalDots - 1));
+    setCurrentIndex(targetIndex);
     
-    // We move by 100% of the view width per dot
     gsap.to(sliderRef.current, {
-      xPercent: -index * 100,
+      xPercent: -targetIndex * 100,
       duration: 0.8,
       ease: "power2.out"
     });
+  };
+
+  // SWIPE LOGIC
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const swipeDistance = touchStartX.current - touchEndX.current;
+    const threshold = 50; // Minimum pixels to count as a swipe
+
+    if (swipeDistance > threshold && currentIndex < totalDots - 1) {
+      // Swiped Left -> Next
+      slideTo(currentIndex + 1);
+    } else if (swipeDistance < -threshold && currentIndex > 0) {
+      // Swiped Right -> Previous
+      slideTo(currentIndex - 1);
+    }
   };
 
   return (
@@ -53,7 +71,12 @@ export default function TopCategories({ categories }: { categories: any[] }) {
           Top Categories
         </h2>
 
-        <div className="overflow-hidden">
+        <div 
+          className="overflow-hidden touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div 
             ref={sliderRef}
             className="flex transition-none"
@@ -61,31 +84,30 @@ export default function TopCategories({ categories }: { categories: any[] }) {
             {categories.map((cat) => (
               <div 
                 key={cat.id} 
-                // w-full makes it 1 per view on mobile
-                // sm:w-1/2 makes it 2 per view on tablets
-                // lg:w-1/4 makes it 4 per view on desktop
                 className="w-full sm:w-1/2 lg:w-1/4 shrink-0 px-4 flex flex-col items-center group cursor-pointer"
               >
                 <div className="relative w-52 h-52 mb-6">
-                  <div className="absolute -left-2 -top-1 w-full h-full rounded-full border-l-[4px] border-[#7E33E0] opacity-0 group-hover:opacity-100 transition-all duration-300 -rotate-12 group-hover:rotate-0" />
+                  {/* Hover Ring: md: prefix ensures it doesn't look weird on mobile tap unless active */}
+                  <div className="absolute -left-2 -top-1 w-full h-full rounded-full border-l-[4px] border-[#7E33E0] opacity-0 md:group-hover:opacity-100 transition-all duration-300 -rotate-12 md:group-hover:rotate-0" />
                   
-                  <div className="relative w-full h-full rounded-full bg-[#F6F7FB] dark:bg-slate-900 flex items-center justify-center shadow-md">
+                  <div className="relative w-full h-full rounded-full bg-[#F6F7FB] dark:bg-slate-900 flex items-center justify-center shadow-md overflow-hidden">
                     {cat.imageUrl && (
                       <Image
                         src={cat.imageUrl}
                         alt={cat.name}
                         width={150}
                         height={150}
-                        className="object-contain p-6 group-hover:scale-110 transition-transform duration-500"
+                        className="object-contain p-6 md:group-hover:scale-110 transition-transform duration-500"
                         unoptimized
                       />
                     )}
                     
+                    {/* View Shop Button: Show on mobile via opacity-100 sm:opacity-0 sm:group-hover:opacity-100 */}
                     <Link 
                       href={`/shop?category=${cat.slug}`}
-                      className="absolute bottom-6 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-20"
+                      className="absolute bottom-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-y-2 md:group-hover:translate-y-0 transition-all duration-300 z-20"
                     >
-                      <button className="bg-[#08D15F] text-white text-[10px] py-2 px-4 rounded-sm font-josefin">
+                      <button className="bg-[#08D15F] text-white text-[10px] py-2 px-4 rounded-sm font-josefin shadow-md">
                         View Shop
                       </button>
                     </Link>
@@ -103,7 +125,7 @@ export default function TopCategories({ categories }: { categories: any[] }) {
           </div>
         </div>
 
-        {/* Indicators: Now dynamic based on itemsPerView */}
+        {/* Indicators */}
         {totalDots > 1 && (
           <div className="flex justify-center gap-2 mt-12">
             {Array.from({ length: totalDots }).map((_, i) => (

@@ -7,6 +7,7 @@ import UniqueFeatures from "@/components/UniqueFeature";
 import TrendingProducts from "@/components/TrendingProducts";
 import DiscountSection from "@/components/DiscountSection";
 import TopCategories from "@/components/TopCategories";
+import NewsletterSection from "@/components/NewsletterSection";
 
 export default async function Home() {
   const [allHomeProducts, activePromo, trendingPromos, topCategories, discountCategories] = await Promise.all([
@@ -85,6 +86,8 @@ export default async function Home() {
         key={topCategories.length} 
         categories={topCategories} 
       />
+
+      <NewsletterSection />
     </main>
   );
 }
