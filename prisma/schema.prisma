@@ -114,33 +114,36 @@ model HeroBanner {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 model Product {
   id                 String  @id @default(cuid())
   name               String
-  code               String  @unique // e.g., Y523201
+  code               String  @unique 
   price              Float
-  discountPercentage Float?  @default(0) // New field: e.g., 20.0 for 20% off
+  discountPercentage Float?  @default(0) 
   description        String?
   imageUrl           String
-
-  // Logical tags: ["featured", "latest", "best-seller", "special-offer", trending]
+  
+  // Logical tags: ["featured", "latest", "best-seller", "special-offer", "trending"]
   tags String[]
 
-  // Common attributes
-  colors   String[] // ["#05E6B7", "#F701A8", "#00009D"]
-  stock    Int      @default(0)
+  // --- NEW FIELDS ---
+  isActive   Boolean @default(true) // Add this line
+ 
+  // ------------------
+
+  colors  String[] 
+  stock   Int      @default(0)
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   promoBanners PromoBanner[]
 
-  @@index([tags]) // Indexing tags makes fetching specific sections very fast
-
   categoryId    String?
   category      Category?      @relation(fields: [categoryId], references: [id])
   
-  discountItems DiscountItem[] // Products used as the "Hero" image for discount tabs
+  discountItems DiscountItem[] 
+
+  @@index([tags])
 }
 
 model Service {
