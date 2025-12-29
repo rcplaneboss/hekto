@@ -93,7 +93,7 @@ export default async function ShopListPage({
       <PageHeader title="Shop List" />
       
       {/* Reusing your FilterBar logic */}
-      <ShopFilterBar totalCount={totalCount} executionTime={executionTime} currentView="list" />
+      <ShopFilterBar totalCount={totalCount} executionTime={executionTime}/>
 
       <div className="container mx-auto px-6 max-w-6xl pb-24">
         {products.length > 0 ? (

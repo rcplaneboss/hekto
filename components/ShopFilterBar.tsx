@@ -7,10 +7,9 @@ import { useCallback } from "react";
 interface FilterBarProps {
   totalCount: number;
   executionTime?: string;
-  _currentView?: string;
 }
 
-export default function ShopFilterBar({ totalCount, executionTime, _currentView }: FilterBarProps) {
+export default function ShopFilterBar({ totalCount, executionTime }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname(); 
   const searchParams = useSearchParams();
@@ -50,7 +49,7 @@ export default function ShopFilterBar({ totalCount, executionTime, _currentView 
     router.push(pathname, { scroll: false });
   };
 
-  const currentView = searchParams.get("view") || "grid" || _currentView;
+  const currentView = searchParams.get("view") || "grid";
 
   return (
     <div className="py-12 bg-white dark:bg-slate-950">
