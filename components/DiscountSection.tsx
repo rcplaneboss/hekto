@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
@@ -13,7 +13,9 @@ export default function DiscountSection({ categories }: { categories: any[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const currentData = categories.find((cat) => cat.id === activeTab)?.discountItem;
+  // Find the full category object to access both discountItem and the slug
+  const activeCategory = categories.find((cat) => cat.id === activeTab);
+  const currentData = activeCategory?.discountItem;
 
   useGSAP(() => {
     if (!categories || categories.length === 0) return;
@@ -42,16 +44,13 @@ export default function DiscountSection({ categories }: { categories: any[] }) {
         duration: 0.8, 
         stagger: 0.15, 
         ease: "power2.out",
-        // Wrapped in braces to fix the Type Error
         onComplete: () => { 
           gsap.set(entranceElements, { clearProps: "all" }); 
         }
       }
     );
-
   }, { scope: sectionRef, dependencies: [categories] });
 
-  // Separate animation for tab switching
   useGSAP(() => {
     if (!contentRef.current) return;
 
@@ -117,7 +116,8 @@ export default function DiscountSection({ categories }: { categories: any[] }) {
               ))}
             </div>
 
-            <Link href={`/product/${currentData.product.id}`}>
+            {/* Link updated to point to the Shop page with the active category slug */}
+            <Link href={`/shop?category=${activeCategory?.slug}`}>
               <button className="mt-4 bg-[#FB2E86] text-white px-8 md:px-10 py-3 rounded-sm font-semibold hover:bg-pink-600 transition-all w-fit text-sm md:text-base">
                 {currentData.buttonText}
               </button>

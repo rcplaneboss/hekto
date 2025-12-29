@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link"; // Added Link
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -43,7 +44,7 @@ export default function UniqueFeatures({ promo }: { promo: any }) {
         }
       });
 
-      // Staggered List Items (the colored dots)
+      // Staggered List Items
       gsap.from(listItemsRef.current, {
         x: 30,
         opacity: 0,
@@ -105,9 +106,13 @@ export default function UniqueFeatures({ promo }: { promo: any }) {
             </ul>
 
             <div className="flex flex-wrap items-center gap-5 mt-4">
-              <button className="bg-[#FB2E86] text-white px-8 py-3 font-josefin font-semibold hover:scale-105 transition-all rounded-sm shadow-md active:bg-pink-700">
-                Add To Cart
-              </button>
+              {/* Updated Link to query both featured and trending tags */}
+              <Link href="/shop?query=featured%20trending">
+                <button className="bg-[#FB2E86] text-white px-8 py-3 font-josefin font-semibold hover:scale-105 transition-all rounded-sm shadow-md active:bg-pink-700">
+                  View Trending
+                </button>
+              </Link>
+              
               <div className="flex flex-col font-josefin">
                 <span className="text-[#151875] dark:text-white font-bold text-sm">{promo.product.name}</span>
                 <span className="text-[#151875] dark:text-slate-300 text-sm">${promo.product.price.toFixed(2)}</span>

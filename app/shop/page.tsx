@@ -13,6 +13,7 @@ export default async function ShopPage({
     const params = await searchParams;
 
     const query = params.query || "";
+    const queryKeywords = query.split(" ").filter(Boolean);
     const category = params.category || "";
     const sort = params.sort || "newest";
     const view = params.view || "grid";
@@ -28,7 +29,7 @@ export default async function ShopPage({
             OR: [
                 { name: { contains: query, mode: "insensitive" } },
                 { description: { contains: query, mode: "insensitive" } },
-                { tags: { has: query } }
+                { tags: { hasSome: queryKeywords } }
             ],
         }),
         ...(category && {
