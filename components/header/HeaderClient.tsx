@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, Heart, Mail, Phone, Menu, X, Sun, Moon, Monitor, TrendingUp } from "lucide-react";
+import { Search, ShoppingCart, Heart, Mail, Phone, Menu, X, Sun, Moon, Monitor, TrendingUp, ChevronDown } from "lucide-react";
 
 export default function HeaderClient({ settings, navLinks }: any) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -65,7 +65,24 @@ export default function HeaderClient({ settings, navLinks }: any) {
                <Phone size={14} /> {settings?.topBarPhone || "loading..."}
              </a>
           </div>
+          
           <div className="flex items-center gap-5">
+            {/* --- RESTORED DESKTOP THEME DROPDOWN --- */}
+            <div className="relative group cursor-pointer flex items-center gap-1 py-1 px-2 hover:bg-white/10 rounded transition-colors">
+               <span className="flex items-center gap-1">Theme <ChevronDown size={12} /></span>
+               <div className="absolute top-full right-0 mt-1 bg-white dark:bg-slate-800 text-black dark:text-white shadow-2xl rounded-lg py-2 hidden group-hover:block z-[110] min-w-[130px] border border-gray-100 dark:border-slate-700">
+                 <button onClick={() => setTheme("light")} className="w-full text-left px-4 py-2 hover:bg-pink-50 dark:hover:bg-slate-700 flex items-center gap-2 text-xs">
+                   <Sun size={14} /> Light
+                 </button>
+                 <button onClick={() => setTheme("dark")} className="w-full text-left px-4 py-2 hover:bg-pink-50 dark:hover:bg-slate-700 flex items-center gap-2 text-xs">
+                   <Moon size={14} /> Dark
+                 </button>
+                 <button onClick={() => setTheme("os")} className="w-full text-left px-4 py-2 hover:bg-pink-50 dark:hover:bg-slate-700 flex items-center gap-2 text-xs">
+                   <Monitor size={14} /> System
+                 </button>
+               </div>
+            </div>
+
             <Link href="/wishlist" className="flex items-center gap-1 hover:text-pink-200">Wishlist <Heart size={14} /></Link>
             <Link href="/cart" className="hover:text-pink-200"><ShoppingCart size={18} /></Link>
           </div>
@@ -95,27 +112,21 @@ export default function HeaderClient({ settings, navLinks }: any) {
               className="border-2 border-gray-100 dark:border-slate-700 dark:bg-slate-800 px-4 py-1.5 focus:outline-none focus:border-[#FB2E86] w-64 text-sm dark:text-white"
               placeholder="Search..."
             />
-            <button onClick={() => handleSearch()} className="bg-[#FB2E86] p-2.5 text-white"><Search size={20} /></button>
+            <button onClick={() => handleSearch()} className="bg-[#FB2E86] p-2.5 text-white hover:bg-pink-600 transition-colors">
+              <Search size={20} />
+            </button>
           </div>
 
-          {/* Mobile Icons (Visible on Mobile) */}
+          {/* Mobile Icons */}
           <div className="flex items-center gap-3 lg:hidden">
             <button onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }} className="p-2 text-[#151875] dark:text-white">
               <Search size={22} />
             </button>
-            
-            <Link href="/wishlist" className="p-2 text-[#151875] dark:text-white">
-              <Heart size={22} />
-            </Link>
-
+            <Link href="/wishlist" className="p-2 text-[#151875] dark:text-white"><Heart size={22} /></Link>
             <Link href="/cart" className="p-2 text-[#151875] dark:text-white relative">
               <ShoppingCart size={22} />
-              {/* Optional: Cart Badge Example */}
-              <span className="absolute top-1 right-1 bg-[#FB2E86] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
-                0
-              </span>
+              <span className="absolute top-1 right-1 bg-[#FB2E86] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">0</span>
             </Link>
-
             <button onClick={() => { setIsMenuOpen(!isMenuOpen); setIsSearchOpen(false); }} className="p-2 text-[#151875] dark:text-white">
               {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
@@ -132,7 +143,6 @@ export default function HeaderClient({ settings, navLinks }: any) {
                 </Link>
               ))}
             </div>
-
             <div className="pt-6 border-t dark:border-slate-800">
               <p className="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest">Appearance</p>
               <div className="flex gap-4">
@@ -166,23 +176,22 @@ export default function HeaderClient({ settings, navLinks }: any) {
           
           <div className="p-6 space-y-8 overflow-y-auto">
             <div>
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 font-josefin">
                 <TrendingUp size={14} /> Trending Now
               </h3>
               <div className="flex flex-wrap gap-2">
                 {trendingSearches.map(term => (
-                  <button key={term} onClick={() => handleSearch(term)} className="px-4 py-2 bg-gray-50 dark:bg-slate-800 dark:text-slate-300 text-sm rounded-full hover:bg-pink-50 hover:text-[#FB2E86]">
+                  <button key={term} onClick={() => handleSearch(term)} className="px-4 py-2 bg-gray-50 dark:bg-slate-800 dark:text-slate-300 text-sm rounded-full hover:bg-pink-50 hover:text-[#FB2E86] font-josefin">
                     {term}
                   </button>
                 ))}
               </div>
             </div>
-
             <div>
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Popular Categories</h3>
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 font-josefin">Popular Categories</h3>
               <div className="grid grid-cols-2 gap-3">
                 {popularCategories.map(cat => (
-                  <Link key={cat.name} href={cat.url} onClick={() => setIsSearchOpen(false)} className="p-4 border dark:border-slate-800 rounded-xl flex justify-between items-center dark:text-white text-sm">
+                  <Link key={cat.name} href={cat.url} onClick={() => setIsSearchOpen(false)} className="p-4 border dark:border-slate-800 rounded-xl flex justify-between items-center dark:text-white text-sm font-josefin">
                     {cat.name} <Search size={14} className="opacity-20" />
                   </Link>
                 ))}
