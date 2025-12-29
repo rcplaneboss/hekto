@@ -7,9 +7,10 @@ import { useCallback } from "react";
 interface FilterBarProps {
   totalCount: number;
   executionTime?: string;
+  currentView?: string;
 }
 
-export default function ShopFilterBar({ totalCount, executionTime }: FilterBarProps) {
+export default function ShopFilterBar({ totalCount, executionTime, currentView }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname(); 
   const searchParams = useSearchParams();
