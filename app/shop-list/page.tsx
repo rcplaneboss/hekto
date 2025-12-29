@@ -103,8 +103,7 @@ export default async function ShopListPage({
               {products.map((product) => (
                 <ProductCardList
                   key={product.id} 
-                  product={product} 
-                  view="list" 
+                  product={product}  
                 />
               ))}
             </div>
