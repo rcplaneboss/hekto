@@ -54,7 +54,7 @@ export default function HeaderClient({ settings, navLinks }: any) {
 
   return (
     <header className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "shadow-md" : ""}`}>
-      {/* --- TOP BAR --- */}
+      {/* --- TOP BAR (Desktop Only) --- */}
       <div className="bg-[#7E33E0] text-white py-2 hidden md:block">
         <div className="container mx-auto flex justify-between items-center px-4 text-sm font-josefin">
           <div className="flex gap-8">
@@ -79,12 +79,14 @@ export default function HeaderClient({ settings, navLinks }: any) {
             {settings?.logoText || "Hekto"}
           </Link>
 
+          {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-8 text-[#151875] dark:text-slate-300 font-medium font-josefin">
             {navLinks.map((link: any) => (
               <Link key={link.id} href={link.url} className="hover:text-[#FB2E86] transition-all">{link.label}</Link>
             ))}
           </div>
 
+          {/* Desktop Search Bar */}
           <div className="hidden md:flex items-center">
             <input 
               type="text" value={searchQuery}
@@ -96,17 +98,31 @@ export default function HeaderClient({ settings, navLinks }: any) {
             <button onClick={() => handleSearch()} className="bg-[#FB2E86] p-2.5 text-white"><Search size={20} /></button>
           </div>
 
-          <div className="flex items-center gap-4 lg:hidden">
-            <button onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }} className="text-[#151875] dark:text-white">
-              <Search size={24} />
+          {/* Mobile Icons (Visible on Mobile) */}
+          <div className="flex items-center gap-3 lg:hidden">
+            <button onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }} className="p-2 text-[#151875] dark:text-white">
+              <Search size={22} />
             </button>
-            <button onClick={() => { setIsMenuOpen(!isMenuOpen); setIsSearchOpen(false); }} className="text-[#151875] dark:text-white">
-              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            
+            <Link href="/wishlist" className="p-2 text-[#151875] dark:text-white">
+              <Heart size={22} />
+            </Link>
+
+            <Link href="/cart" className="p-2 text-[#151875] dark:text-white relative">
+              <ShoppingCart size={22} />
+              {/* Optional: Cart Badge Example */}
+              <span className="absolute top-1 right-1 bg-[#FB2E86] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+                0
+              </span>
+            </Link>
+
+            <button onClick={() => { setIsMenuOpen(!isMenuOpen); setIsSearchOpen(false); }} className="p-2 text-[#151875] dark:text-white">
+              {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
         </div>
 
-        {/* --- MOBILE DRAWER (THE NAVIGATION) --- */}
+        {/* --- MOBILE DRAWER --- */}
         {isMenuOpen && (
           <div className="lg:hidden bg-white dark:bg-slate-900 border-t dark:border-slate-800 p-6 space-y-8 absolute w-full left-0 shadow-2xl animate-in fade-in slide-in-from-top-5 duration-300 z-[65]">
             <div className="flex flex-col gap-6 text-[#151875] dark:text-white text-xl font-bold font-josefin">
@@ -118,11 +134,11 @@ export default function HeaderClient({ settings, navLinks }: any) {
             </div>
 
             <div className="pt-6 border-t dark:border-slate-800">
-              <p className="text-xs font-bold text-gray-400 uppercase mb-4">Appearance</p>
+              <p className="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest">Appearance</p>
               <div className="flex gap-4">
-                <button onClick={() => setTheme("light")} className="flex-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg flex justify-center dark:text-white"><Sun size={20}/></button>
-                <button onClick={() => setTheme("dark")} className="flex-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg flex justify-center dark:text-white"><Moon size={20}/></button>
-                <button onClick={() => setTheme("os")} className="flex-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg flex justify-center dark:text-white"><Monitor size={20}/></button>
+                <button onClick={() => setTheme("light")} className="flex-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg flex justify-center dark:text-white border dark:border-slate-700"><Sun size={20}/></button>
+                <button onClick={() => setTheme("dark")} className="flex-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg flex justify-center dark:text-white border dark:border-slate-700"><Moon size={20}/></button>
+                <button onClick={() => setTheme("os")} className="flex-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg flex justify-center dark:text-white border dark:border-slate-700"><Monitor size={20}/></button>
               </div>
             </div>
           </div>
@@ -166,7 +182,7 @@ export default function HeaderClient({ settings, navLinks }: any) {
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Popular Categories</h3>
               <div className="grid grid-cols-2 gap-3">
                 {popularCategories.map(cat => (
-                  <Link key={cat.name} href={cat.url} onClick={() => setIsSearchOpen(false)} className="p-4 border dark:border-slate-800 rounded-xl flex justify-between items-center dark:text-white">
+                  <Link key={cat.name} href={cat.url} onClick={() => setIsSearchOpen(false)} className="p-4 border dark:border-slate-800 rounded-xl flex justify-between items-center dark:text-white text-sm">
                     {cat.name} <Search size={14} className="opacity-20" />
                   </Link>
                 ))}
