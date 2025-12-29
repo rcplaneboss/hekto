@@ -6,6 +6,12 @@ import Pagination from "@/components/Pagination";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import Fuse from "fuse.js"; 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Shop Grid Default ",
+    description: "Explore our diverse range of products in the Shop Grid Default layout at Hekto E-commerce. Find everything you need with ease and style.",
+};
 
 export default async function ShopPage({
     searchParams,

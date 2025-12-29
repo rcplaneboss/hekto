@@ -92,7 +92,7 @@ export default function HeaderClient({ settings, navLinks }: any) {
       {/* --- MAIN NAV --- */}
       <nav className="bg-white dark:bg-slate-900 border-b dark:border-slate-800 relative z-[70]">
         <div className="container mx-auto px-4 h-20 flex justify-between items-center">
-          <Link href="/" className="text-3xl font-bold text-[#151875] dark:text-white">
+          <Link href="/" className="text-3xl font-bold text-[#151875] dark:text-white font-josefin">
             {settings?.logoText || "Hekto"}
           </Link>
 
