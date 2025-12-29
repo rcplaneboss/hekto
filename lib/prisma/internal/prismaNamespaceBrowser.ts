@@ -59,6 +59,7 @@ export const ModelName = {
   NewsletterSubscriber: 'NewsletterSubscriber',
   HeroBanner: 'HeroBanner',
   Product: 'Product',
+  Review: 'Review',
   Service: 'Service',
   PromoBanner: 'PromoBanner',
   TrendingPromo: 'TrendingPromo',
@@ -191,6 +192,18 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const ReviewScalarFieldEnum = {
+  id: 'id',
+  rating: 'rating',
+  comment: 'comment',
+  reviewerName: 'reviewerName',
+  productId: 'productId',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
 
 
 export const ServiceScalarFieldEnum = {

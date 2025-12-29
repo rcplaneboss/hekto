@@ -1,7 +1,7 @@
 "use client";
 
 import { Grid, List, X } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 interface FilterBarProps {
@@ -11,28 +11,42 @@ interface FilterBarProps {
 
 export default function ShopFilterBar({ totalCount, executionTime }: FilterBarProps) {
   const router = useRouter();
+  const pathname = usePathname(); 
   const searchParams = useSearchParams();
-
-  // Get active filters for the display
-  const query = searchParams.get("query");
-  const category = searchParams.get("category");
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
-      if (name !== "page") params.delete("page");
+      // Reset to page 1 whenever a filter changes
+      if (name !== "page") params.set("page", "1"); 
       return params.toString();
     },
     [searchParams]
   );
 
-  const handleUpdate = (name: string, value: string) => {
-    router.push(`/shop?${createQueryString(name, value)}`, { scroll: false });
+  // Get active filters for the display
+  const query = searchParams.get("query");
+  const category = searchParams.get("category");
+
+  // const createQueryString = useCallback(
+  //   (name: string, value: string) => {
+  //     const params = new URLSearchParams(searchParams.toString());
+  //     params.set(name, value);
+  //     if (name !== "page") params.delete("page");
+  //     return params.toString();
+  //   },
+  //   [searchParams]
+  // );
+
+ const handleUpdate = (name: string, value: string) => {
+    
+    router.push(`${pathname}?${createQueryString(name, value)}`, { scroll: false });
   };
 
   const clearFilters = () => {
-    router.push("/shop", { scroll: false });
+    
+    router.push(pathname, { scroll: false });
   };
 
   const currentView = searchParams.get("view") || "grid";

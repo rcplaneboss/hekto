@@ -144,6 +144,22 @@ model Product {
   discountItems DiscountItem[] 
 
   @@index([tags])
+
+reviews Review[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1 to 5
+  comment   String?  @db.Text
+  
+  // User info (simplified for now, usually links to a User model)
+  reviewerName String @default("Anonymous")
+  
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 model Service {
