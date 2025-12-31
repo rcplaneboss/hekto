@@ -70,6 +70,7 @@ export default function TrendingProducts({
         {/* 1. Top Grid: Main Products */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {products?.map((product) => (
+            <Link href={`/shop/${product.id}`} className="no-underline">
             <div key={product.id} className="trending-card opacity-0 bg-white dark:bg-slate-900 p-3 shadow-sm hover:shadow-md group transition-all">
               <div className="bg-[#F5F6F8] dark:bg-slate-800 h-[200px] flex items-center justify-center mb-4 relative rounded-sm">
                 <Image 
@@ -87,8 +88,10 @@ export default function TrendingProducts({
                 </div>
               </div>
             </div>
+            </Link>
           ))}
         </div>
+
 
         {/* 2. Bottom Row: Promos + Mini List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -116,6 +119,7 @@ export default function TrendingProducts({
           {/* Mini Product List */}
           <div className="flex flex-col gap-4">
             {miniList?.map((item) => (
+              <Link href={`/shop/${item.id}`} className="no-underline">
               <div key={item.id} className="mini-list-item opacity-0 flex items-center gap-3 group cursor-pointer bg-white dark:bg-slate-900/50 p-1 rounded-sm">
                 <div className="bg-[#F5F6F8] dark:bg-slate-800 w-20 h-16 flex items-center justify-center rounded-sm flex-shrink-0">
                   <Image src={item.imageUrl} alt={item.name} width={45} height={45} className="object-contain group-hover:scale-110 transition-transform" />
@@ -125,6 +129,7 @@ export default function TrendingProducts({
                   <p className="text-[#151875] dark:text-slate-400 text-[10px] line-through">${item.price.toFixed(2)}</p>
                 </div>
               </div>
+              </Link>
             ))}
           </div>
         </div>

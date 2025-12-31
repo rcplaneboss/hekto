@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Star, Heart, Facebook, Instagram, Twitter } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import Link from "next/link";
 
 export default function ProductDetailsClient({ product }: { product: any }) {
   const [selectedImage, setSelectedImage] = useState(product?.imageUrl);
@@ -36,7 +37,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                 <button 
                   key={idx} 
                   onClick={() => setSelectedImage(url)}
-                  className={`flex-shrink-0 w-24 h-24 md:w-full md:h-32 bg-[#F6F7FB] dark:bg-slate-800 rounded-sm flex items-center justify-center overflow-hidden border-2 transition-all ${
+                  className={`flex-shrink-0 w-24 h-24 md:w-full md:h-32 bg-[#F6F7FB] dark:bg-slate-900 rounded-sm flex items-center justify-center overflow-hidden border-2 transition-all ${
                     selectedImage === url ? "border-[#FB2E86]" : "border-transparent"
                   }`}
                 >
@@ -44,7 +45,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                 </button>
               ))}
             </div>
-            <div className="flex-1 bg-[#F6F7FB] dark:bg-slate-800 rounded-sm flex items-center justify-center overflow-hidden min-h-[350px] md:min-h-[480px]">
+            <div className="flex-1 bg-[#F6F7FB] dark:bg-slate-900 rounded-sm flex items-center justify-center overflow-hidden min-h-[350px] md:min-h-[480px]">
               <img src={selectedImage} alt={product.name} className="object-contain max-h-[420px] w-full p-6" />
             </div>
           </div>
@@ -56,14 +57,14 @@ export default function ProductDetailsClient({ product }: { product: any }) {
             </h2>
             
             <div className="flex items-center gap-1 mb-3">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={12} fill={i < 4 ? "#FFC416" : "none"} className={i < 4 ? "text-[#FFC416]" : "text-gray-300"} />
+              {[...Array(product?.review?.length)].map((_, i) => (
+                <Star key={i} size={12} fill={i < product?.review?.length ? "#FFC416" : "none"} className={i < product?.review?.length ? "text-[#FFC416]" : "text-gray-300"} />
               ))}
               <span className="text-[#151875] dark:text-slate-400 text-xs ml-2">({product.reviews?.length || 0})</span>
             </div>
             
             <div className="flex items-center gap-4 mb-4">
-              <span className="text-lg font-bold text-[#151875] dark:text-[#FB2E86]">${product.price}</span>
+              <span className="text-2xl font-bold text-[#151875] dark:text-[#FB2E86]">${product.price}</span>
             </div>
 
             {/* Dynamic Colors */}
@@ -98,10 +99,10 @@ export default function ProductDetailsClient({ product }: { product: any }) {
 
             <div className="space-y-4 pt-4 ">
               <p className="text-[#151875] dark:text-slate-200 font-bold text-sm">
-                Categories: <span className="font-normal text-[#A9ACC6] ml-2">{product.category?.name}</span>
+                Categories: <span className="font-normal text-[#A9ACC6] ml-2"><Link href={`/shop?category=${product.category?.slug}`}>{product.category?.name}</Link></span>
               </p>
               <p className="text-[#151875] dark:text-slate-200 font-bold text-sm">
-                Tags: <span className="font-normal text-[#A9ACC6] ml-2">{product.tags?.join(", ")}</span>
+                Tags: <span className="font-normal text-[#A9ACC6] ml-2 flex gap-3 w-full flex-wrap">{product.tags?.map((tag: string) => <Link key={tag} href={`/shop?query=${tag}`} className="hover:text-[#FB2E86]">{tag}</Link>)}</span>
               </p>
               <div className="flex items-center gap-4">
                 <span className="text-[#151875] dark:text-slate-200 font-bold text-sm">Share</span>
@@ -135,13 +136,27 @@ export default function ProductDetailsClient({ product }: { product: any }) {
             ))}
           </div>
 
+          <div>
+            {
+              activeTab === "additional info" && (
+                <div className="animate-in fade-in duration-500">
+                  <h4 className="text-[#151875] dark:text-white text-xl font-bold mb-4 ">Additional Information</h4>
+                  <p className="leading-[2] whitespace-pre-line text-[#90a1b9] mb-4">
+                    Contact our support team for more details about this product.
+                  </p>
+                </div>
+              )
+
+            }
+          </div>
+
           <div className="text-[#A9ACC6] dark:text-slate-400">
             {activeTab === "description" && (
               <div className="animate-in fade-in duration-500">
                 <h4 className="text-[#151875] dark:text-white text-xl font-bold mb-4">Full Product Description</h4>
-                <p className="leading-[2] whitespace-pre-line">
+                {product.longDescription ? <p className="leading-[2] whitespace-pre-line">
                   {product.longDescription}
-                </p>
+                </p> : <p className="leading-[2] whitespace-pre-line">No description available for this product. Contact support.</p>}
               </div>
             )}
 
@@ -153,6 +168,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                     <span className="text-sm font-medium">{String(value)}</span>
                   </div>
                 ))}
+                {!product.specs && <p>No specifications available for this product.</p>}
               </div>
             )}
             

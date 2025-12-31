@@ -4,6 +4,7 @@ import { useState } from "react";
 import SectionHeading from "./SectionHeading";
 import { ShoppingCart, Heart, Search } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const categories = ["New Arrival", "Best Seller", "Featured", "Special Offer"];
 
@@ -69,6 +70,7 @@ function LatestProductCard({ product }: { product: any }) {
   };
 
   return (
+    <Link href={`/shop/${product.id}`} className="no-underline">
     <div 
       onClick={toggleActive}
       className="group flex flex-col items-center w-full max-w-[320px] mx-auto transition-all cursor-pointer touch-manipulation"
@@ -92,19 +94,26 @@ function LatestProductCard({ product }: { product: any }) {
             : "opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0"
         }`}>
           <button 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
             className="p-1.5 bg-white dark:bg-slate-600 text-[#151875] dark:text-white rounded-full hover:bg-[#FB2E86] hover:text-white transition-colors shadow-sm"
           >
             <ShoppingCart size={14} />
           </button>
           <button 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {e.stopPropagation();
+              e.preventDefault();
+            }}
             className="p-1.5 text-[#151875] dark:text-white hover:text-[#FB2E86] transition-colors"
           >
             <Heart size={14} />
           </button>
           <button 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {e.stopPropagation();
+              e.preventDefault();
+            }}
             className="p-1.5 text-[#151875] dark:text-white hover:text-[#FB2E86] transition-colors"
           >
             <Search size={14} />
@@ -140,5 +149,6 @@ function LatestProductCard({ product }: { product: any }) {
         </div>
       </div>
     </div>
+    </Link>
   );
 }

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { ShoppingCart, Heart, Search, Star } from "lucide-react";
+import Link from "next/link";
 
 export default function ProductCardList({ product }: { product: any }) {
   const hasDiscount = product.discountPercentage && product.discountPercentage > 0;
@@ -14,7 +15,11 @@ export default function ProductCardList({ product }: { product: any }) {
     ? product.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount 
     : 0;
 
+
+ 
+
   return (
+    <Link href={`/shop/${product.id}`} className="no-underline">
     <div className="group flex flex-row items-start gap-4 p-3 sm:p-4 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300 border border-[#F6F7FB] dark:border-slate-800">
       
       {/* 1. Fixed Image Container for Mobile Row */}
@@ -75,19 +80,27 @@ export default function ProductCardList({ product }: { product: any }) {
 
         {/* Action Icons - Smaller for mobile */}
         <div className="flex gap-2 sm:gap-3">
-          <IconButton icon={<ShoppingCart size={14} />} />
+          <IconButton icon={<ShoppingCart size={14} />}  />
           <IconButton icon={<Heart size={14} />} />
           <IconButton icon={<Search size={14} />} />
         </div>
       </div>
     </div>
+    </Link>
   );
 }
 
 // Small helper to keep code clean
 function IconButton({ icon }: { icon: React.ReactNode }) {
+
+   const handlePropagation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <button className="p-1.5 sm:p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm text-[#151875] dark:text-white hover:bg-[#FB2E86] hover:text-white transition-all border border-gray-100 dark:border-slate-700">
+    <button className="p-1.5 sm:p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm text-[#151875] dark:text-white hover:bg-[#FB2E86] hover:text-white transition-all border border-gray-100 dark:border-slate-700" onClick={(e)=>{
+      handlePropagation(e);
+    }}>
       {icon}
     </button>
   );
