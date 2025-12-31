@@ -94,7 +94,7 @@ export default async function ShopLeftSidebarPage({
                             : "flex flex-col gap-8"
                         }>
                             {products.map((product) => (
-                                <ProductCardList key={product.id} product={product} view={view} />
+                                <ProductCardList key={product.id} product={product}  />
                             ))}
                         </div>
                         
