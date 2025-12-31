@@ -70,35 +70,56 @@ export async function createProduct(formData: FormData) {
   revalidatePath('/shop');
   return newProduct;
 }
-
 export async function updateProduct(id: string, formData: FormData) {
-  const imageFile = formData.get('image') as File
+  const imageFiles = formData.getAll('images') as File[];
+  const specsRaw = formData.get('specs') as string;
+  
+  let parsedSpecs = {};
+  try {
+    const specsArray = JSON.parse(specsRaw || '[]');
+    parsedSpecs = specsArray.reduce((acc: any, curr: { key: string; value: string }) => {
+      if (curr.key.trim()) acc[curr.key] = curr.value;
+      return acc;
+    }, {});
+  } catch (e) {
+    console.error(e);
+  }
+
   let updateData: any = {
     name: formData.get('name') as string,
     code: formData.get('code') as string,
     price: parseFloat(formData.get('price') as string),
     discountPercentage: parseFloat(formData.get('discountPercentage') as string) || 0,
     description: formData.get('description') as string,
+    longDescription: formData.get('longDescription') as string,
+    additionalInfo: formData.get('additionalInfo') as string,
     stock: parseInt(formData.get('stock') as string) || 0,
-    categoryId: formData.get('categoryId') as string || null,
+    categoryId: (formData.get('categoryId') as string) || null,
     tags: (formData.get('tags') as string)?.split(',').filter(Boolean) || [],
     colors: (formData.get('colors') as string)?.split(',').filter(Boolean) || [],
     isActive: formData.get('isActive') === 'true',
-  }
+    specs: parsedSpecs,
+  };
 
-  // Only upload new image if a file was provided
-  if (imageFile && imageFile.size > 0) {
-    updateData.imageUrl = await uploadImage(imageFile)
+  const validFiles = imageFiles.filter(file => file.size > 0);
+  
+  if (validFiles.length > 0) {
+    const uploadedUrls = await Promise.all(
+      validFiles.map(file => uploadImage(file))
+    );
+    updateData.imageUrl = uploadedUrls[0];
   }
 
   const updated = await prisma.product.update({
     where: { id },
     data: updateData
-  })
+  });
 
-  revalidatePath('/admin/products')
-  revalidatePath('/shop')
-  return updated
+  revalidatePath('/admin/products');
+  revalidatePath('/shop');
+  revalidatePath(`/product/${id}`); 
+  
+  return updated;
 }
 
 export async function deleteProduct(id: string) {
