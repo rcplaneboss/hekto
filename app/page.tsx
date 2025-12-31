@@ -68,7 +68,7 @@ export default async function Home() {
   const miniList = allHomeProducts.filter(p => p.tags.includes("mini-list")).slice(0, 3);
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen overflow-hidden">
       <HeroSection />
       {featured && <FeaturedProducts products={featured} />}
       {latestSectionProducts && <LatestProducts products={latestSectionProducts} />}

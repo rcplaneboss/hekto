@@ -80,6 +80,11 @@ export type HeroBanner = Prisma.HeroBannerModel
  */
 export type Product = Prisma.ProductModel
 /**
+ * Model ProductImage
+ * 
+ */
+export type ProductImage = Prisma.ProductImageModel
+/**
  * Model Review
  * 
  */

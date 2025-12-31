@@ -19,37 +19,56 @@ async function uploadImage(imageFile: File) {
 
   return urlData.publicUrl
 }
-
 export async function createProduct(formData: FormData) {
-  const imageFile = formData.get('image') as File
-  let publicUrl = ""
+  const imageFiles = formData.getAll('images') as File[];
+  const imageUrls: string[] = [];
 
-  if (imageFile && imageFile.size > 0) {
-    publicUrl = await uploadImage(imageFile)
+  // 1. Upload all files
+  for (const file of imageFiles) {
+    if (file.size > 0) {
+      const url = await uploadImage(file);
+      imageUrls.push(url);
+    }
   }
 
-  const tags = (formData.get('tags') as string)?.split(',').filter(Boolean) || []
-  const colors = (formData.get('colors') as string)?.split(',').filter(Boolean) || []
+  // 2. Identify the Main Image (index 0) and Gallery Images (rest)
+  const mainImage = imageUrls[0] || "";
+  const galleryImages = imageUrls.slice(1); // All images except the first one
+
+  const tags = (formData.get('tags') as string)?.split(',').filter(Boolean) || [];
+  const colors = (formData.get('colors') as string)?.split(',').filter(Boolean) || [];
+  
+  const rawSpecs = formData.get('specs') as string;
+  const specsObject = JSON.parse(rawSpecs || "[]").reduce((acc: any, curr: any) => {
+    if (curr.key) acc[curr.key] = curr.value;
+    return acc;
+  }, {});
 
   const newProduct = await prisma.product.create({
     data: {
       name: formData.get('name') as string,
       code: formData.get('code') as string,
       price: parseFloat(formData.get('price') as string),
-      discountPercentage: parseFloat(formData.get('discountPercentage') as string) || 0,
+      imageUrl: mainImage, // Legacy field gets the first image
       description: formData.get('description') as string,
+      longDescription: formData.get('longDescription') as string,
+      specs: specsObject,
       stock: parseInt(formData.get('stock') as string) || 0,
       categoryId: formData.get('categoryId') as string || null,
-      imageUrl: publicUrl,
       tags: tags,
       colors: colors,
-      isActive: formData.get('isActive') === 'true',
+      // Create records for the thumbnails in the ProductImage table
+      images: {
+        create: galleryImages.map((url) => ({
+          url,
+          isMain: false // They are secondary thumbnails
+        }))
+      }
     }
-  })
+  });
 
-  revalidatePath('/admin/products')
-  revalidatePath('/shop')
-  return newProduct
+  revalidatePath('/shop');
+  return newProduct;
 }
 
 export async function updateProduct(id: string, formData: FormData) {

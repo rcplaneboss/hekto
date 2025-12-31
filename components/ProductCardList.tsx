@@ -15,7 +15,7 @@ export default function ProductCardList({ product }: { product: any }) {
     : 0;
 
   return (
-    <div className="group flex flex-row items-start gap-4 p-3 sm:p-4 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg border border-[#F6F7FB] dark:border-slate-800">
+    <div className="group flex flex-row items-start gap-4 p-3 sm:p-4 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300 border border-[#F6F7FB] dark:border-slate-800">
       
       {/* 1. Fixed Image Container for Mobile Row */}
       <div className="relative bg-[#F6F7FB] dark:bg-slate-800 flex items-center justify-center overflow-hidden w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-md">

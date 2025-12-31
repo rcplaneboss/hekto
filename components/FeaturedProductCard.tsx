@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ShoppingCart, Heart, Search } from "lucide-react";
+import Link from "next/link";
 
 export default function FeaturedProductCard({ product }: { product: any }) {
   const [isActive, setIsActive] = useState(false);
@@ -74,7 +75,9 @@ export default function FeaturedProductCard({ product }: { product: any }) {
             ? "opacity-100 translate-y-0" 
             : "opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"}`}
         >
+          <Link href={`/shop/${product.id}`}>
           View Details
+          </Link>
         </button>
       </div>
 
