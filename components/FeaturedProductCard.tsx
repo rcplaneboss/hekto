@@ -1,18 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
-import { ShoppingCart, Heart, Search } from "lucide-react";
+import { ShoppingCart, Heart, Search, Loader2, Check } from "lucide-react";
 import Link from "next/link";
+import { addToCart } from "@/app/actions/cart"; // Import the server action
 
 export default function FeaturedProductCard({ product }: { product: any }) {
   const [isActive, setIsActive] = useState(false);
+  const [isPending, startTransition] = useTransition(); // Handle async server action
+  const [isAdded, setIsAdded] = useState(false); // Handle success feedback
 
   const toggleActive = () => {
     // Only toggle on mobile/touch devices; desktop still uses hover
     if (window.matchMedia("(max-width: 1024px)").matches) {
       setIsActive(!isActive);
     }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Stop the card from flipping/navigating
+    
+    startTransition(async () => {
+      try {
+        // Defaulting to 1 quantity. 
+        // Note: For cards, we usually add the base product. 
+        // Specific colors/sizes are usually selected on the details page.
+        await addToCart(product.id, 1);
+        
+        // Show success state
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
+      } catch (error) {
+        console.error("Failed to add to cart", error);
+        alert("Please login to add items to cart.");
+      }
+    });
   };
 
   return (
@@ -32,21 +55,37 @@ export default function FeaturedProductCard({ product }: { product: any }) {
           ${isActive 
             ? "opacity-100 translate-x-0" 
             : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"}`}>
+          
+          {/* --- ADD TO CART BUTTON --- */}
           <button 
-            onClick={(e) => e.stopPropagation()} // Prevent card toggle when clicking button
-            className="p-1.5 bg-white dark:bg-slate-700 text-[#1389FF] rounded-full hover:bg-[#2F1AC4] hover:text-white transition-colors shadow-sm"
+            onClick={handleAddToCart}
+            disabled={isPending}
+            className={`p-1.5 rounded-full transition-colors shadow-sm flex items-center justify-center w-8 h-8
+              ${isAdded 
+                ? "bg-green-500 text-white hover:bg-green-600" 
+                : "bg-white dark:bg-slate-700 text-[#1389FF] hover:bg-[#2F1AC4] hover:text-white"
+              }
+            `}
+            title="Add to Cart"
           >
-            <ShoppingCart size={14} />
+            {isPending ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : isAdded ? (
+              <Check size={14} />
+            ) : (
+              <ShoppingCart size={14} />
+            )}
           </button>
+
           <button 
             onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-[#1389FF] hover:bg-white dark:hover:bg-slate-600 rounded-full transition-colors"
+            className="p-1.5 text-[#1389FF] hover:bg-white dark:hover:bg-slate-600 rounded-full transition-colors w-8 h-8 flex items-center justify-center"
           >
             <Heart size={14} />
           </button>
           <button 
             onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-[#1389FF] hover:bg-white dark:hover:bg-slate-600 rounded-full transition-colors"
+            className="p-1.5 text-[#1389FF] hover:bg-white dark:hover:bg-slate-600 rounded-full transition-colors w-8 h-8 flex items-center justify-center"
           >
             <Search size={14} />
           </button>
@@ -65,20 +104,20 @@ export default function FeaturedProductCard({ product }: { product: any }) {
         </div>
         
         {/* View Details Button */}
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            console.log("Navigate to details");
-          }}
-          className={`absolute bottom-3 left-1/2 -translate-x-1/2 bg-[#08D15F] text-white px-3 py-1.5 text-[10px] font-bold rounded-sm transition-all duration-300 hover:bg-green-600 shadow-md uppercase tracking-tighter font-josefin
+        <div 
+          className={`absolute bottom-3 left-1/2 -translate-x-1/2 transition-all duration-300
           ${isActive 
             ? "opacity-100 translate-y-0" 
             : "opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"}`}
         >
-          <Link href={`/shop/${product.id}`}>
-          View Details
+          <Link 
+            href={`/shop/${product.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#08D15F] text-white px-3 py-1.5 text-[10px] font-bold rounded-sm hover:bg-green-600 shadow-md uppercase tracking-tighter font-josefin block"
+          >
+            View Details
           </Link>
-        </button>
+        </div>
       </div>
 
       {/* 2. BOTTOM SECTION */}

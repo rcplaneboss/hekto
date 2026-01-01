@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/prisma"
@@ -11,6 +5,59 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart?
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
 
 // --- GLOBAL SETTINGS ---
@@ -113,40 +160,42 @@ model HeroBanner {
   order     Int      @default(0) // To control which slide comes first
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}model Product {
-  id                 String         @id @default(cuid())
+}
+model Product {
+  id                 String @id @default(cuid())
   name               String
-  code               String         @unique
+  code               String @unique
   price              Float
-  discountPercentage Float?         @default(0)
-  
+  discountPercentage Float? @default(0)
+
   // Design separation for the Hekto tabs
-  imageUrl           String
-  description        String?        @db.Text // Short summary next to buy button
-  longDescription    String?        @db.Text // Content for "Description" tab
-  additionalInfo     String?        @db.Text // Content for "Additional Info" tab
-  
+  imageUrl        String
+  description     String? @db.Text // Short summary next to buy button
+  longDescription String? @db.Text // Content for "Description" tab
+  additionalInfo  String? @db.Text // Content for "Additional Info" tab
+
   // NEW: Technical Specifications
   // Using Json allows: { "Material": "Wood", "Style": "Modern" }
-  specs              Json?          @default("{}")
-  
+  specs Json? @default("{}")
+
   // Relations
-  images             ProductImage[]
-  
-  tags               String[]
-  colors             String[]
-  stock              Int            @default(0)
-  isActive           Boolean        @default(true)
+  images ProductImage[]
 
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  tags     String[]
+  colors   String[]
+  stock    Int      @default(0)
+  isActive Boolean  @default(true)
 
-  categoryId         String?
-  category           Category?      @relation(fields: [categoryId], references: [id])
-  reviews            Review[]
-  
-  promoBanners       PromoBanner[]
-  discountItems      DiscountItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  reviews    Review[]
+
+  promoBanners  PromoBanner[]
+  discountItems DiscountItem[]
+  cartItems     CartItem[]
 
   @@index([tags])
   @@index([categoryId])
@@ -161,16 +210,17 @@ model ProductImage {
 
   @@index([productId])
 }
+
 model Review {
-  id        String   @id @default(cuid())
-  rating    Int      // 1 to 5
-  comment   String?  @db.Text
-  
+  id      String  @id @default(cuid())
+  rating  Int // 1 to 5
+  comment String? @db.Text
+
   // User info (simplified for now, usually links to a User model)
   reviewerName String @default("Anonymous")
-  
+
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 }
@@ -203,52 +253,49 @@ model PromoBanner {
   updatedAt DateTime @updatedAt
 }
 
-
 model TrendingPromo {
-  id        String   @id @default(cuid())
-  title     String   // e.g., "23% off in all products"
-  linkText  String   // e.g., "Shop Now" or "View Collection"
-  linkUrl   String
-  imageUrl  String
-  bgColor   String   // e.g., "#FFF6FB" (Pinkish) or "#EEEFFB" (Blueish)
-  isActive  Boolean  @default(true)
+  id       String  @id @default(cuid())
+  title    String // e.g., "23% off in all products"
+  linkText String // e.g., "Shop Now" or "View Collection"
+  linkUrl  String
+  imageUrl String
+  bgColor  String // e.g., "#FFF6FB" (Pinkish) or "#EEEFFB" (Blueish)
+  isActive Boolean @default(true)
 }
 
-
 model Category {
-  id           String        @id @default(cuid())
-  name         String        @unique 
-  slug         String        @unique
-  imageUrl     String?      
-  
-  products     Product[]     
-  discountItem DiscountItem? 
-  showOnTop    Boolean       @default(false) 
-  
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id       String  @id @default(cuid())
+  name     String  @unique
+  slug     String  @unique
+  imageUrl String?
+
+  products     Product[]
+  discountItem DiscountItem?
+  showOnTop    Boolean       @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model DiscountItem {
-  id              String   @id @default(cuid())
-  title           String   // e.g., "20% Discount Of All Products"
-  subtitle        String   // e.g., "Eams Sofa Compact"
-  description     String   @db.Text
-  features        String[] // Array of bullet points: ["Material expose like metals", "Simple neutral colours"]
-  buttonText      String   @default("Shop Now")
-  
+  id          String   @id @default(cuid())
+  title       String // e.g., "20% Discount Of All Products"
+  subtitle    String // e.g., "Eams Sofa Compact"
+  description String   @db.Text
+  features    String[] // Array of bullet points: ["Material expose like metals", "Simple neutral colours"]
+  buttonText  String   @default("Shop Now")
+
   // Relations
-  categoryId      String   @unique
-  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
+  categoryId String   @unique
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   // Link to a specific product to show its image
-  productId       String
-  product         Product  @relation(fields: [productId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 
 model Brand {
   id        String   @id @default(cuid())
@@ -259,27 +306,51 @@ model Brand {
 }
 
 model Newsletter {
-  id        String   @id @default(cuid())
-  title     String   @default("Get Latest Update By Subscribe Our Newsletter")
-  bgImage   String   @default("/images/newsletter-bg.png")
-  buttonText String  @default("Shop Now")
+  id         String @id @default(cuid())
+  title      String @default("Get Latest Update By Subscribe Our Newsletter")
+  bgImage    String @default("/images/newsletter-bg.png")
+  buttonText String @default("Shop Now")
 }
 
-
 model BlogPost {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
-  slug        String    @unique
-  content     String    @db.Text // For the full blog body
-  excerpt     String    @db.Text // The short text shown on the card
-  author      String    @default("SoberAli")
-  mainImage   String    // The primary card image
-  publishedAt DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+  slug        String   @unique
+  content     String   @db.Text // For the full blog body
+  excerpt     String   @db.Text // The short text shown on the card
+  author      String   @default("SoberAli")
+  mainImage   String // The primary card image
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   // Future-proofing for the single page
-  category    String?
-  tags        String[]  @default([])
-  isFeatured  Boolean   @default(false)
+  category   String?
+  tags       String[] @default([])
+  isFeatured Boolean  @default(false)
+}
+
+model Cart {
+  id     String     @id @default(cuid())
+  userId String?    @unique // Optional: We might have guest carts later
+  user   User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id     String @id @default(cuid())
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity Int     @default(1)
+  color    String? // Stores "Brown", "Red" etc.
+  size     String? // Stores "XL", "M" etc.
+
+  @@unique([cartId, productId, color, size])
 }

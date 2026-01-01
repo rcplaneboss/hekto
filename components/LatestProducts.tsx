@@ -58,7 +58,7 @@ export default function LatestProducts({ products }: { products: any[] }) {
 function LatestProductCard({ product }: { product: any }) {
   const [isActive, setIsActive] = useState(false);
   
-  const hasDiscount = product.discountPercentage && product.discountPercentage > 0;
+  const hasDiscount = product.discountPercentage && (product.discountPercentage > 0);
   const originalPrice = hasDiscount 
     ? product.price / (1 - product.discountPercentage / 100)
     : null;
