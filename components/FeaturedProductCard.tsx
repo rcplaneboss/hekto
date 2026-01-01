@@ -4,15 +4,18 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { ShoppingCart, Heart, Search, Loader2, Check } from "lucide-react";
 import Link from "next/link";
-import { addToCart } from "@/app/actions/cart"; // Import the server action
+import { addToCart } from "@/app/actions/cart"; 
+import { useCart } from "@/context/CartContext";
+
 
 export default function FeaturedProductCard({ product }: { product: any }) {
+  const { refreshCart } = useCart();
   const [isActive, setIsActive] = useState(false);
-  const [isPending, startTransition] = useTransition(); // Handle async server action
-  const [isAdded, setIsAdded] = useState(false); // Handle success feedback
+  const [isPending, startTransition] = useTransition(); 
+  const [isAdded, setIsAdded] = useState(false); 
 
   const toggleActive = () => {
-    // Only toggle on mobile/touch devices; desktop still uses hover
+   
     if (window.matchMedia("(max-width: 1024px)").matches) {
       setIsActive(!isActive);
     }
@@ -27,7 +30,7 @@ export default function FeaturedProductCard({ product }: { product: any }) {
         // Note: For cards, we usually add the base product. 
         // Specific colors/sizes are usually selected on the details page.
         await addToCart(product.id, 1);
-        
+        await refreshCart();
         // Show success state
         setIsAdded(true);
         setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds

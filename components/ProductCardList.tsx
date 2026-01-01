@@ -5,10 +5,12 @@ import Image from "next/image";
 import { ShoppingCart, Heart, Search, Star, Loader2, Check } from "lucide-react";
 import Link from "next/link";
 import { addToCart } from "@/app/actions/cart";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductCardList({ product }: { product: any }) {
   const [isPending, startTransition] = useTransition();
   const [isAdded, setIsAdded] = useState(false);
+  const { refreshCart } = useCart();
 
   const hasDiscount = product.discountPercentage && product.discountPercentage > 0;
   const discountedPrice = hasDiscount 
@@ -28,6 +30,7 @@ export default function ProductCardList({ product }: { product: any }) {
     startTransition(async () => {
       try {
         await addToCart(product.id, 1);
+        await refreshCart();
         setIsAdded(true);
         setTimeout(() => setIsAdded(false), 2000);
       } catch (error) {

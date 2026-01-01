@@ -1,6 +1,15 @@
-import type { NextConfig } from "next";
+import withPWAInit from "next-pwa";
 
-const nextConfig: NextConfig = {
+/** @type {import('next-pwa').PWAConfig} */
+const withPWA = withPWAInit({
+  dest: "public",         // Where the service worker will be generated
+  register: true,         // Register the service worker automatically
+  skipWaiting: true,      // Activate service worker immediately
+  disable: process.env.NODE_ENV === "development", // Disable in dev to avoid caching bugs
+});
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -13,11 +22,11 @@ const nextConfig: NextConfig = {
   },
 
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
     ignoreBuildErrors: true,
   },
+  
+  // Necessary for some PWA setups to avoid hydration issues
+  reactStrictMode: true,
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

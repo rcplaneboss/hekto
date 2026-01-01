@@ -1,0 +1,21 @@
+{
+  "name": "Water Medics Store",
+  "short_name": "Water MS",
+  "description": "An e-commerce platform for medical-related products.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7E33E0",
+  "icons": [
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

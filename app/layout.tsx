@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Josefin_Sans, Lato } from "next/font/google";
 import HeaderContainer from "@/components/header/HeaderContainer";
 import FooterContainer from "@/components/footer/FooterContainer";
 import "./globals.css";
+import { CartProvider } from "@/context/CartContext";
 
 const josefin = Josefin_Sans({
   subsets: ['latin'],
@@ -18,8 +19,18 @@ const lato = Lato({
 });
 
 
+// 1. Separate Viewport (Recommended for Next.js 14+)
+export const viewport: Viewport = {
+  themeColor: "#7E33E0",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
+// 2. Updated Metadata
 export const metadata: Metadata = {
-  // 1. Basic Metadata
+  // --- Basic Metadata ---
   title: {
     default: "Waterms - Modern Furniture Store",
     template: "%s | Waterms",
@@ -29,7 +40,19 @@ export const metadata: Metadata = {
   authors: [{ name: "Water Medics Store" }],
   creator: "Axiom Team",
   
-  // 2. OpenGraph (Facebook, WhatsApp, LinkedIn)
+  // --- PWA Essentials ---
+  manifest: "/manifest.json", // Link to your manifest file
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Waterms",
+    // startupImage: "/startup.png", // Optional: Splash screen image
+  },
+  formatDetection: {
+    telephone: false,
+  },
+
+  // --- OpenGraph (Facebook, WhatsApp, LinkedIn) ---
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -39,7 +62,7 @@ export const metadata: Metadata = {
     siteName: "Hekto",
     images: [
       {
-        url: "https://your-domain.com/og-image.jpg", // Create a 1200x630 image
+        url: "https://your-domain.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Hekto Furniture Gallery",
@@ -47,7 +70,7 @@ export const metadata: Metadata = {
     ],
   },
 
-  // 3. Twitter Card
+  // --- Twitter Card ---
   twitter: {
     card: "summary_large_image",
     title: "Hekto Furniture Store",
@@ -56,14 +79,14 @@ export const metadata: Metadata = {
     creator: "@your_twitter_handle",
   },
 
-  // 4. Icons & Favicons
+  // --- Icons & Favicons ---
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
 
-  // 5. Search Engine Robots
+  // --- Search Engine Robots ---
   robots: {
     index: true,
     follow: true,
@@ -87,9 +110,11 @@ export default function RootLayout({
       <body
         className={`${josefin.variable} ${lato.variable} antialiased`}
       >
+        <CartProvider>
         <HeaderContainer />
         {children}
         <FooterContainer />
+        </CartProvider>
       </body>
     </html>
   );
