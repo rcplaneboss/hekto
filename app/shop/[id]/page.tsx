@@ -18,7 +18,12 @@ export default async function ProductPage({
     include: {
       images: true,    //
       category: true,  //
-      reviews: true,   
+      reviews: {
+        include: {
+          user: true,   //
+        },
+      },  
+       
     },
   });
 

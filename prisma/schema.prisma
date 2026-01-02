@@ -15,6 +15,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  reviews Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -212,17 +213,17 @@ model ProductImage {
 }
 
 model Review {
-  id      String  @id @default(cuid())
-  rating  Int // 1 to 5
-  comment String? @db.Text
+  id           String   @id @default(cuid())
+  rating       Int      // 1 to 5
+  comment      String?  @db.Text
+  
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // User info (simplified for now, usually links to a User model)
-  reviewerName String @default("Anonymous")
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
+  createdAt    DateTime @default(now())
 }
 
 model Service {

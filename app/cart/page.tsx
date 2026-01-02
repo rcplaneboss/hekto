@@ -12,6 +12,7 @@ type CartData = {
   id: string;
   items: {
     id: string;
+    productId: string; // Used for the link
     quantity: number;
     color: string | null;
     size: string | null;
@@ -125,13 +126,13 @@ export default function CartPage() {
     <div className="bg-white dark:bg-slate-900 min-h-screen pb-20 font-josefin transition-colors duration-300">
       <PageHeader title="Shopping Cart" />
       
-      <div className="container mx-auto px-4 py-8 lg:py-20">
+      <div className="container mx-auto px-4 py-24 lg:py-20">
         <div className="grid lg:grid-cols-3 gap-8 xl:gap-12">
           
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-slate-900">
               
-              {/* --- DESKTOP TABLE (Hidden on Mobile) --- */}
+              {/* --- DESKTOP TABLE --- */}
               <div className="hidden overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
@@ -148,13 +149,19 @@ export default function CartPage() {
                         <td className="py-6 pr-4">
                           <div className="flex items-center gap-4">
                             <div className="relative w-20 h-20 rounded-md overflow-hidden bg-gray-100 dark:bg-slate-800 flex-shrink-0 border border-gray-100 dark:border-slate-700">
-                              <Image src={item.product.imageUrl} alt={item.product.name} fill className="object-cover" />
+                              {/* Clickable Image */}
+                              <Link href={`/shop/${item.productId}`}>
+                                <Image src={item.product.imageUrl} alt={item.product.name} fill className="object-cover" />
+                              </Link>
                               <button onClick={() => handleRemove(item.id)} className="absolute top-0 right-0 p-1 bg-black/70 hover:bg-[#FB2E86] text-white opacity-0 group-hover:opacity-100 transition-all rounded-bl-lg">
                                 <X size={12} />
                               </button>
                             </div>
                             <div className="flex flex-col gap-1">
-                              <h4 className="text-[#000000] dark:text-white text-sm font-semibold truncate max-w-[150px]">{item.product.name}</h4>
+                              {/* Clickable Name */}
+                              <Link href={`/shop/${item.productId}`}>
+                                <h4 className="text-[#000000] dark:text-white text-sm font-semibold truncate max-w-[150px] hover:text-[#FB2E86] transition-colors">{item.product.name}</h4>
+                              </Link>
                               <p className="text-gray-400 text-xs">Color: {item.color || "Default"}</p>
                               <p className="text-gray-400 text-xs">Size: {item.size || "Regular"}</p>
                             </div>
@@ -175,17 +182,21 @@ export default function CartPage() {
                 </table>
               </div>
 
-              {/* --- MOBILE CARDS (Hidden on Desktop) --- */}
-              <div className="block space-y-4">
+              {/* --- MOBILE CARDS --- */}
+              <div className="md:hidden block space-y-4">
                 {cart.items.map((item) => (
                   <div key={item.id} className="border dark:border-slate-800 p-4 rounded-lg bg-white dark:bg-slate-900 shadow-sm">
                     <div className="flex gap-4">
-                      <div className="relative w-20 h-20 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+                      {/* Clickable Image */}
+                      <Link href={`/shop/${item.productId}`} className="relative w-20 h-20 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
                         <Image src={item.product.imageUrl} alt={item.product.name} fill className="object-cover" />
-                      </div>
+                      </Link>
                       <div className="flex-1 flex flex-col">
                         <div className="flex justify-between items-start">
-                          <h4 className="text-[#151875] dark:text-white font-bold text-sm leading-tight">{item.product.name}</h4>
+                          {/* Clickable Name */}
+                          <Link href={`/shop/${item.productId}`}>
+                            <h4 className="text-[#151875] dark:text-white font-bold text-sm leading-tight hover:text-[#FB2E86] transition-colors">{item.product.name}</h4>
+                          </Link>
                           <button onClick={() => handleRemove(item.id)} className="text-red-500 p-1"><Trash2 size={16}/></button>
                         </div>
                         <p className="text-gray-400 text-xs mt-1">Size: {item.size || "Regular"}</p>
