@@ -8,14 +8,17 @@ import {
   Sun, Moon, Monitor, TrendingUp, ChevronDown, User, LogOut, LayoutDashboard 
 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { getCart } from "@/app/actions/cart";
+import { useCart } from "@/context/CartContext";
 
 export default function HeaderClient({ settings, navLinks, user }: any) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  
+  // Updated: Use global context instead of local state
+  const { cartCount } = useCart();
+  
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,23 +28,6 @@ export default function HeaderClient({ settings, navLinks, user }: any) {
     { name: "Fashion", url: "/shop?category=fashion" },
     { name: "Home Decor", url: "/shop?category=home" },
   ];
-
-  // Fetch Cart Items and Calculate Total Quantity
-  useEffect(() => {
-    const fetchCartData = async () => {
-      try {
-        const cart = await getCart();
-        if (cart && cart.items) {
-          const total = cart.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
-          setCartCount(total);
-        }
-      } catch (error) {
-        console.error("Error fetching cart count:", error);
-      }
-    };
-
-    fetchCartData();
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);

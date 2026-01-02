@@ -24,6 +24,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  turbopack: {},
   
   // Necessary for some PWA setups to avoid hydration issues
   reactStrictMode: true,
