@@ -9,7 +9,6 @@ import { addToCart } from "@/app/actions/cart";
 import { addReview } from "@/app/actions/reviews";
 import { getRelatedProducts } from "@/app/actions/product";
 
-
 export default function ProductDetailsClient({ product }: { product: any }) {
   const [selectedImage, setSelectedImage] = useState(product?.imageUrl);
   const [activeTab, setActiveTab] = useState("description");
@@ -85,13 +84,18 @@ export default function ProductDetailsClient({ product }: { product: any }) {
     ...(product.images?.map((img: any) => img.url) || [])
   ].filter(Boolean);
 
+  // Calculate Avg Rating for main product
+  const mainAvgRating = product.reviews?.length > 0 
+    ? product.reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / product.reviews.length 
+    : 5;
+
   return (
     <div className="bg-white dark:bg-slate-950 min-h-screen font-josefin transition-colors pb-20">
       <PageHeader title="Product Details" />
 
       {/* PRODUCT INFO SECTION */}
       <div className="container mx-auto max-w-6xl py-10 md:py-20 px-4 md:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white dark:bg-[#1e293b] p-3 md:p-4 shadow-[0_0_25px_rgba(0,0,0,0.06)] rounded-sm border dark:border-slate-800">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white dark:bg-[#1e293b] p-3 md:p-4 shadow-[0_0_25px_rgba(0,0,0,0.06)] rounded-sm max-md:border dark:border-slate-800">
 
           {/* LEFT: Image Gallery */}
           <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4">
@@ -119,7 +123,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
 
             <div className="flex items-center gap-1 mb-3">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={12} fill={i < (product.reviews?.reduce((acc: any, r: any) => acc + r.rating, 0) / product.reviews?.length || 5) ? "#FFC416" : "none"} className="text-[#FFC416]" />
+                <Star key={i} size={12} fill={i < Math.round(mainAvgRating) ? "#FFC416" : "none"} className="text-[#FFC416]" />
               ))}
               <span className="text-[#151875] dark:text-slate-400 text-xs ml-2">({product.reviews?.length || 0})</span>
             </div>
@@ -211,25 +215,18 @@ export default function ProductDetailsClient({ product }: { product: any }) {
           </div>
 
           <div className="text-[#A9ACC6] dark:text-slate-400">
-            {/* DESCRIPTION */}
             {activeTab === "description" && (
               <div className="animate-in fade-in duration-500">
                 <h4 className="text-[#151875] dark:text-white text-xl font-bold mb-4">Full Product Description</h4>
                 <p className="leading-[2] whitespace-pre-line">{product.longDescription || product.description}</p>
               </div>
             )}
-
-            {/* ADDITIONAL INFO */}
             {activeTab === "additional info" && (
               <div className="animate-in fade-in duration-500">
                 <h4 className="text-[#151875] dark:text-white text-xl font-bold mb-4">Additional Information</h4>
-                <p className="leading-[2] whitespace-pre-line">
-                  {product.additionalInfo || "No additional information provided for this product."}
-                </p>
+                <p className="leading-[2] whitespace-pre-line">{product.additionalInfo || "No additional information provided."}</p>
               </div>
             )}
-
-            {/* SPECS */}
             {activeTab === "specs" && (
               <div className="animate-in fade-in duration-500">
                 <h4 className="text-[#151875] dark:text-white text-xl font-bold mb-6">Technical Specifications</h4>
@@ -241,21 +238,15 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                         <span className="text-sm">{String(value)}</span>
                       </div>
                     ))
-                  ) : (
-                    <p>Specifications not available.</p>
-                  )}
+                  ) : <p>Specifications not available.</p>}
                 </div>
               </div>
             )}
-
-            {/* REVIEWS */}
             {activeTab === "reviews" && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                   <div className="space-y-6">
-                    <h4 className="text-[#151875] dark:text-white text-xl font-bold">
-                      Customer Reviews ({product.reviews?.length || 0})
-                    </h4>
+                    <h4 className="text-[#151875] dark:text-white text-xl font-bold">Customer Reviews ({product.reviews?.length || 0})</h4>
                     <div className="max-h-[500px] overflow-y-auto pr-4 space-y-6 custom-scrollbar">
                       {product.reviews?.map((review: any, idx: number) => (
                         <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-sm shadow-sm border dark:border-slate-800">
@@ -280,7 +271,6 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                       ))}
                     </div>
                   </div>
-
                   <div className="bg-white dark:bg-slate-900 p-8 rounded-sm shadow-md border dark:border-slate-800 h-fit sticky top-4">
                     <h4 className="text-[#151875] dark:text-white text-xl font-bold mb-6">Write a Review</h4>
                     <form onSubmit={handleReviewSubmit} className="space-y-4">
@@ -296,33 +286,16 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                               onClick={() => setSelectedRating(star)}
                               className="transition-transform hover:scale-110"
                             >
-                              <Star
-                                size={28}
-                                fill={(hoverRating || selectedRating) >= star ? "#FFC416" : "none"}
-                                className={(hoverRating || selectedRating) >= star ? "text-[#FFC416]" : "text-gray-300"}
-                              />
+                              <Star size={28} fill={(hoverRating || selectedRating) >= star ? "#FFC416" : "none"} className={(hoverRating || selectedRating) >= star ? "text-[#FFC416]" : "text-gray-300"} />
                             </button>
                           ))}
                         </div>
                       </div>
-
                       <div>
                         <label className="block text-sm font-bold text-[#151875] dark:text-slate-200 mb-2">Review Content</label>
-                        <textarea
-                          rows={4}
-                          value={reviewComment}
-                          onChange={(e) => setReviewComment(e.target.value)}
-                          placeholder="What was your experience with this product?"
-                          className="w-full p-4 bg-[#F4F4FC] dark:bg-slate-800 rounded-sm border-none focus:ring-2 focus:ring-[#FB2E86] outline-none text-sm text-[#151875] dark:text-white"
-                          required
-                        />
+                        <textarea rows={4} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder="What was your experience?" className="w-full p-4 bg-[#F4F4FC] dark:bg-slate-800 rounded-sm border-none focus:ring-2 focus:ring-[#FB2E86] outline-none text-sm text-[#151875] dark:text-white" required />
                       </div>
-
-                      <button
-                        type="submit"
-                        disabled={isPending}
-                        className="w-full bg-[#FB2E86] text-white font-bold py-4 rounded-sm flex items-center justify-center gap-2 hover:bg-pink-600 transition-colors disabled:opacity-50 shadow-lg shadow-pink-500/20"
-                      >
+                      <button type="submit" disabled={isPending} className="w-full bg-[#FB2E86] text-white font-bold py-4 rounded-sm flex items-center justify-center gap-2 hover:bg-pink-600 transition-colors disabled:opacity-50 shadow-lg shadow-pink-500/20">
                         {isPending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                         Submit Review
                       </button>
@@ -335,53 +308,55 @@ export default function ProductDetailsClient({ product }: { product: any }) {
         </div>
       </div>
 
-      {/* RELATED PRODUCTS SECTION - PER FIGMA DESIGN */}
-      <div className="container mx-auto max-w-6xl py-20 px-4 md:px-6">
-        <h3 className="text-[36px] font-bold text-[#101750] dark:text-white mb-10">Related Products</h3>
+      {/* RELATED PRODUCTS SECTION - SMALLER & HORIZONTAL SIDE-BY-SIDE */}
+      <div className="container mx-auto max-w-6xl py-20 px-4 md:px-6 overflow-hidden">
+        <h3 className="text-2xl md:text-[36px] font-bold text-[#101750] dark:text-white mb-10">Related Products</h3>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Mobile: Horizontal Flex Scroll | Desktop: 4 Column Grid */}
+        <div className="flex flex-nowrap md:grid md:grid-cols-4 gap-4 md:gap-8 overflow-x-auto pb-6 md:pb-0 no-scrollbar snap-x">
           {relatedProducts.length > 0 ? (
             relatedProducts.map((item) => (
-              <div key={item.id} className="group">
-                {/* Product Image */}
-                <div className="aspect-square overflow-hidden bg-[#F6F7FB] dark:bg-slate-900 rounded-sm mb-4 relative">
+              <div key={item.id} className="min-w-[170px] w-[170px] md:w-auto flex-shrink-0 snap-start group">
+                {/* Product Image - Aspect Square & Smaller */}
+                <div className="aspect-square overflow-hidden bg-[#F6F7FB] dark:bg-slate-900 rounded-sm mb-3 relative">
                   <Link href={`/shop/${item.id}`}>
                     <img 
                       src={item.imageUrl} 
                       alt={item.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-300" 
                     />
                   </Link>
                 </div>
 
-                {/* Product Name & Stars Row */}
-                <div className="flex items-center justify-between mb-1">
-                  <Link href={`/product/${item.id}`}>
-                    <h4 className="text-[#151875] dark:text-slate-200 font-bold text-sm lg:text-base hover:text-[#FB2E86] transition-colors">
-                      {item.name}
-                    </h4>
-                  </Link>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        size={10} 
-                        fill={i < Math.round(item.avgRating) ? "#FFC416" : "none"} 
-                        className="text-[#FFC416]" 
-                      />
-                    ))}
+                {/* Product Info - Tighter spacing & Smaller Text */}
+                <div className="space-y-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <Link href={`/product/${item.id}`}>
+                      <h4 className="text-[#151875] dark:text-slate-200 font-bold text-xs lg:text-sm truncate hover:text-[#FB2E86] transition-colors">
+                        {item.name}
+                      </h4>
+                    </Link>
+                    <div className="flex shrink-0">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          size={8} 
+                          fill={i < Math.round(item.avgRating || 5) ? "#FFC416" : "none"} 
+                          className="text-[#FFC416]" 
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Price */}
-                <p className="text-[#151875] dark:text-[#FB2E86] font-bold text-sm">
-                  ${item.price.toFixed(2)}
-                </p>
+                  <p className="text-[#151875] dark:text-[#FB2E86] font-bold text-xs">
+                    ${item.price.toFixed(2)}
+                  </p>
+                </div>
               </div>
             ))
           ) : (
-            <div className="col-span-full py-10 text-center border-2 border-dashed rounded-lg dark:border-slate-800">
-               <p className="text-[#A9ACC6]">Looking for similar items? Check back soon!</p>
+            <div className="w-full col-span-full py-10 text-center border border-dashed rounded dark:border-slate-800">
+               <p className="text-[#A9ACC6] text-sm">No related products found.</p>
             </div>
           )}
         </div>
