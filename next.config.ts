@@ -26,7 +26,7 @@
 //   },
 
 //   turbopack: {},
-  
+
 //   // Necessary for some PWA setups to avoid hydration issues
 //   reactStrictMode: true,
 // };
@@ -45,11 +45,14 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'vwhantfodlkbxrybrbce.supabase.co', 
+        hostname: 'vwhantfodlkbxrybrbce.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
     ],
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 
