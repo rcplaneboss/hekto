@@ -128,3 +128,28 @@ export async function deleteProduct(id: string) {
   revalidatePath('/admin/products')
   revalidatePath('/shop')
 }
+
+export async function getRelatedProducts(categoryId: string, currentProductId: string) {
+  const related = await prisma.product.findMany({
+    where: {
+      categoryId: categoryId,
+      id: { not: currentProductId },
+    },
+    take: 12,
+    include: {
+      reviews: {
+        select: {
+          rating: true
+        }
+      },
+    },
+  });
+
+  // Calculate average rating for each related product
+  return related.map(p => {
+    const avg = p.reviews.length > 0 
+      ? p.reviews.reduce((acc, r) => acc + r.rating, 0) / p.reviews.length 
+      : 5; // Default to 5 if no reviews
+    return { ...p, avgRating: avg };
+  });
+}
