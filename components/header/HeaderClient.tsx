@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 export default function HeaderClient({ settings, navLinks, user }: any) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,8 +17,9 @@ export default function HeaderClient({ settings, navLinks, user }: any) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   
-  // Updated: Use global context instead of local state
+  // Dynamic Counts from Context
   const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
   
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -94,10 +96,21 @@ export default function HeaderClient({ settings, navLinks, user }: any) {
                </div>
             </div>
 
-            <Link href="/wishlist" className="flex items-center gap-1 hover:text-pink-200 transition-colors">
-              Wishlist <Heart size={14} />
+            {/* Wishlist Link with Badge */}
+            <Link href="/wishlist" className="flex items-center gap-1 hover:text-pink-200 transition-colors relative group">
+              Wishlist 
+              <Heart 
+                size={14} 
+                className={`transition-all ${wishlistCount > 0 ? "fill-white text-white" : ""}`} 
+              />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#FB2E86] text-white text-[10px] min-w-[14px] h-3.5 flex items-center justify-center rounded-full font-bold px-1 animate-in zoom-in">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
             
+            {/* Cart Link with Badge */}
             <Link href="/cart" className="hover:text-pink-200 transition-colors relative">
               <ShoppingCart size={18} />
               {cartCount > 0 && (
@@ -175,11 +188,26 @@ export default function HeaderClient({ settings, navLinks, user }: any) {
             <button onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }} className="p-2 text-[#151875] dark:text-white">
               <Search size={22} />
             </button>
+            
+            {/* Mobile Wishlist with Badge */}
+            <Link href="/wishlist" className="p-2 text-[#151875] dark:text-white relative">
+              <Heart 
+                size={22} 
+                className={`transition-all ${wishlistCount > 0 ? "fill-[#FB2E86] text-[#FB2E86]" : ""}`} 
+              />
+              {wishlistCount > 0 && (
+                <span className="absolute top-1 right-1 bg-[#FB2E86] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold animate-in zoom-in">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {user && (
               <Link href="/dashboard" className="p-2 text-[#FB2E86]">
                 <User size={22} />
               </Link>
             )}
+
             <Link href="/cart" className="p-2 text-[#151875] dark:text-white relative">
               <ShoppingCart size={22} />
               {cartCount > 0 && (

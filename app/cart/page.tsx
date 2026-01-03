@@ -183,7 +183,7 @@ export default function CartPage() {
               </div>
 
               {/* --- MOBILE CARDS --- */}
-              <div className="md:hidden block space-y-4">
+              <div className=" block space-y-4">
                 {cart.items.map((item) => (
                   <div key={item.id} className="border dark:border-slate-800 p-4 rounded-lg bg-white dark:bg-slate-900 shadow-sm">
                     <div className="flex gap-4">

@@ -4,6 +4,8 @@ import HeaderContainer from "@/components/header/HeaderContainer";
 import FooterContainer from "@/components/footer/FooterContainer";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { auth} from "@/auth";
 
 const josefin = Josefin_Sans({
   subsets: ['latin'],
@@ -100,21 +102,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
      <html lang="en">
       <body
         className={`${josefin.variable} ${lato.variable} antialiased`}
       >
+        <WishlistProvider user={session?.user}>
         <CartProvider>
         <HeaderContainer />
         {children}
         <FooterContainer />
         </CartProvider>
+        </WishlistProvider>
       </body>
     </html>
   );

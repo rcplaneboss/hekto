@@ -24,3 +24,13 @@
 
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+
+@keyframes bounce-short {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.animate-bounce-short {
+  animation: bounce-short 0.3s ease-out;
+}

@@ -5,6 +5,7 @@ import { Star, Heart, Facebook, Instagram, Twitter, Minus, Plus, Loader2, Send, 
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext"; // Added Wishlist Context
 import { addToCart } from "@/app/actions/cart";
 import { addReview } from "@/app/actions/reviews";
 import { getRelatedProducts } from "@/app/actions/product";
@@ -23,12 +24,14 @@ export default function ProductDetailsClient({ product }: { product: any }) {
   const [reviewComment, setReviewComment] = useState("");
 
   const { refreshCart, cart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist(); // Wishlist Hook
+
+  const isSaved = isInWishlist(product.id);
 
   useEffect(() => {
     if (product?.imageUrl) setSelectedImage(product.imageUrl);
     if (product?.colors?.length > 0) setSelectedColor(product.colors[0]);
 
-    // Fetch Related Products
     const fetchRelated = async () => {
       if (product?.categoryId) {
         const related = await getRelatedProducts(product.categoryId, product.id);
@@ -84,7 +87,6 @@ export default function ProductDetailsClient({ product }: { product: any }) {
     ...(product.images?.map((img: any) => img.url) || [])
   ].filter(Boolean);
 
-  // Calculate Avg Rating for main product
   const mainAvgRating = product.reviews?.length > 0 
     ? product.reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / product.reviews.length 
     : 5;
@@ -167,7 +169,20 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                 {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShoppingCart size={16} />}
                 {isPending ? "Adding..." : "Add To Cart"}
               </button>
-              <Heart size={18} className="text-[#151875] dark:text-white cursor-pointer hover:text-[#FB2E86]" />
+              
+              {/* Updated Wishlist Button */}
+              <button 
+                onClick={() => toggleWishlist(product)}
+                className="group flex items-center gap-2 transition-all active:scale-90"
+              >
+                <Heart 
+                  size={20} 
+                  className={`transition-all duration-300 ${isSaved ? "fill-[#FB2E86] text-[#FB2E86]" : "text-[#151875] dark:text-white group-hover:text-[#FB2E86]"}`} 
+                />
+                <span className={`text-sm font-bold ${isSaved ? "text-[#FB2E86]" : "text-[#151875] dark:text-slate-300"}`}>
+                  {isSaved ? "Saved" : "Wishlist"}
+                </span>
+              </button>
             </div>
 
             <div className="space-y-4 pt-4 border-t dark:border-slate-800">
@@ -308,16 +323,14 @@ export default function ProductDetailsClient({ product }: { product: any }) {
         </div>
       </div>
 
-      {/* RELATED PRODUCTS SECTION - SMALLER & HORIZONTAL SIDE-BY-SIDE */}
+      {/* RELATED PRODUCTS SECTION */}
       <div className="container mx-auto max-w-6xl py-20 px-4 md:px-6 overflow-hidden">
         <h3 className="text-2xl md:text-[36px] font-bold text-[#101750] dark:text-white mb-10">Related Products</h3>
         
-        {/* Mobile: Horizontal Flex Scroll | Desktop: 4 Column Grid */}
         <div className="flex flex-nowrap md:grid md:grid-cols-4 gap-4 md:gap-8 overflow-x-auto pb-6 md:pb-0 no-scrollbar snap-x">
           {relatedProducts.length > 0 ? (
             relatedProducts.map((item) => (
               <div key={item.id} className="min-w-[170px] w-[170px] md:w-auto flex-shrink-0 snap-start group">
-                {/* Product Image - Aspect Square & Smaller */}
                 <div className="aspect-square overflow-hidden bg-[#F6F7FB] dark:bg-slate-900 rounded-sm mb-3 relative">
                   <Link href={`/shop/${item.id}`}>
                     <img 
@@ -328,7 +341,6 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                   </Link>
                 </div>
 
-                {/* Product Info - Tighter spacing & Smaller Text */}
                 <div className="space-y-1">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <Link href={`/product/${item.id}`}>

@@ -137,3 +137,13 @@ export type Cart = Prisma.CartModel
  * 
  */
 export type CartItem = Prisma.CartItemModel
+/**
+ * Model Wishlist
+ * 
+ */
+export type Wishlist = Prisma.WishlistModel
+/**
+ * Model WishlistItem
+ * 
+ */
+export type WishlistItem = Prisma.WishlistItemModel
