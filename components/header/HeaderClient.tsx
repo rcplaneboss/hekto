@@ -229,9 +229,9 @@ export default function HeaderClient({ settings, navLinks, user }: any) {
               {user ? (
                 <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#FB2E86]/10 flex items-center justify-center text-[#FB2E86]">
+                    {/* <div className="w-10 h-10 rounded-full bg-[#FB2E86]/10 flex items-center justify-center text-[#FB2E86]">
                       <User size={20} />
-                    </div>
+                    </div> */}
                     <div className="font-josefin">
                       <p className="text-sm font-black text-[#151875] dark:text-white">{user.name}</p>
                       <p className="text-[10px] font-bold text-[#FB2E86] uppercase tracking-widest">Active Session</p>

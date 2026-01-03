@@ -22,6 +22,40 @@ export const WishlistProvider = ({
   const [wishlist, setWishlist] = useState<any[]>([]);
   const wishlistCount = wishlist.length;
 
+
+  // ... inside WishlistProvider ...
+
+  useEffect(() => {
+    const syncWishlist = async () => {
+      // Only sync if we have a user AND items in localStorage
+      const localData = localStorage.getItem("user-wishlist");
+      const localItems = localData ? JSON.parse(localData) : [];
+
+      if (user?.id && localItems.length > 0) {
+        try {
+          const res = await fetch("/api/wishlist/sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              productIds: localItems.map((item: any) => item.id) 
+            }),
+          });
+
+          if (res.ok) {
+            const updatedWishlist = await res.json();
+            setWishlist(updatedWishlist);
+            // Once synced, clear local storage to prevent double-syncing
+            localStorage.removeItem("user-wishlist");
+          }
+        } catch (error) {
+          console.error("Sync failed", error);
+        }
+      }
+    };
+
+    syncWishlist();
+  }, [user?.id]); // Fires immediately when auth() detects a user
+
   // 1. Initial Load
   useEffect(() => {
     const loadWishlist = async () => {
@@ -58,7 +92,7 @@ export const WishlistProvider = ({
     setWishlist(newWishlist);
 
     if (user?.id) {
-      await fetch("/api/wishlist/toggle", {
+      await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: product.id }),
