@@ -6,12 +6,17 @@ import { ShoppingCart, Heart, Search, Star, Loader2, Check } from "lucide-react"
 import Link from "next/link";
 import { addToCart } from "@/app/actions/cart";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 export default function ProductCardList({ product }: { product: any }) {
   const [isPending, startTransition] = useTransition();
-  const [isAdded, setIsAdded] = useState(false);
   const { refreshCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  
+  // Toast state for feedback
+  const [toast, setToast] = useState<{ message: string; type: 'cart' | 'wish' } | null>(null);
 
+  const isFavorited = isInWishlist(product.id);
   const hasDiscount = product.discountPercentage && product.discountPercentage > 0;
   const discountedPrice = hasDiscount 
     ? product.price - (product.price * (product.discountPercentage / 100))
@@ -22,25 +27,49 @@ export default function ProductCardList({ product }: { product: any }) {
     ? product.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount 
     : 0;
 
-  // --- Add to Cart Logic ---
+  // Helper to trigger toast
+  const triggerToast = (message: string, type: 'cart' | 'wish') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2500);
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // Stop Link navigation
-    e.stopPropagation(); // Stop click bubbling
+    e.preventDefault();
+    e.stopPropagation();
 
     startTransition(async () => {
       try {
         await addToCart(product.id, 1);
         await refreshCart();
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000);
+        triggerToast("Added to Cart!", "cart");
       } catch (error) {
         console.error("Cart update failed:", error);
       }
     });
   };
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+    if (!isFavorited) {
+      triggerToast("Saved to Wishlist!", "wish");
+    }
+  };
+
   return (
-    <Link href={`/shop/${product.id}`} className="no-underline block">
+    <Link href={`/shop/${product.id}`} className="no-underline block relative">
+      {/* --- TOAST NOTIFICATION --- */}
+      {toast && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[60] w-max animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className={`flex items-center gap-2 py-1.5 px-4 rounded-full shadow-lg text-white text-[10px] font-bold uppercase tracking-widest font-josefin
+            ${toast.type === 'cart' ? 'bg-[#08D15F]' : 'bg-[#FB2E86]'}`}>
+            {toast.type === 'cart' ? <Check size={12} /> : <Heart size={12} fill="white" />}
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <div className="group flex flex-row items-start gap-4 p-3 sm:p-4 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300 border border-[#F6F7FB] dark:border-slate-800 rounded-sm">
         
         {/* 1. Image Container */}
@@ -61,7 +90,6 @@ export default function ProductCardList({ product }: { product: any }) {
               {product.name}
             </h3>
             
-            {/* Color Dots */}
             <div className="flex gap-1">
               {product.colors?.slice(0, 3).map((color: string, index: number) => (
                 <div key={index} className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-black/5" style={{ backgroundColor: color }} />
@@ -69,7 +97,6 @@ export default function ProductCardList({ product }: { product: any }) {
             </div>
           </div>
 
-          {/* Price & Stars Row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-2">
             <div className="flex items-center gap-2 font-josefin">
               <span className="text-[#111C85] dark:text-white text-xs sm:text-sm font-bold">
@@ -82,7 +109,6 @@ export default function ProductCardList({ product }: { product: any }) {
               )}
             </div>
 
-            {/* Ratings */}
             <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star 
@@ -94,7 +120,6 @@ export default function ProductCardList({ product }: { product: any }) {
             </div>
           </div>
 
-          {/* Description */}
           <p className="hidden sm:block text-[#9295AA] dark:text-slate-400 font-lato text-xs sm:text-sm leading-relaxed mb-4 line-clamp-2 max-w-xl">
             {product.description || "High-quality fashion item crafted for comfort and style."}
           </p>
@@ -104,15 +129,19 @@ export default function ProductCardList({ product }: { product: any }) {
             <IconButton 
               onClick={handleAddToCart}
               disabled={isPending}
-              active={isAdded}
               icon={
-                isPending ? <Loader2 size={14} className="animate-spin" /> : 
-                isAdded ? <Check size={14} /> : 
-                <ShoppingCart size={14} />
+                isPending ? <Loader2 size={14} className="animate-spin" /> : <ShoppingCart size={14} />
               } 
             />
-            <IconButton icon={<Heart size={14} />} onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} />
-            <IconButton icon={<Search size={14} />} onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} />
+            <IconButton 
+              active={isFavorited}
+              onClick={handleWishlistToggle}
+              icon={<Heart size={14} fill={isFavorited ? "currentColor" : "none"} />} 
+            />
+            <IconButton 
+              icon={<Search size={14} />} 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
+            />
           </div>
         </div>
       </div>
@@ -138,7 +167,7 @@ function IconButton({
       onClick={onClick}
       className={`p-1.5 sm:p-2 rounded-full shadow-sm transition-all border flex items-center justify-center
         ${active 
-          ? "bg-green-500 text-white border-green-500" 
+          ? "bg-[#FB2E86] text-white border-[#FB2E86]" 
           : "bg-white dark:bg-slate-800 text-[#151875] dark:text-white hover:bg-[#FB2E86] hover:text-white border-gray-100 dark:border-slate-700"
         }
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-95"}

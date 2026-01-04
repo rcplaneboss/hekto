@@ -6,6 +6,7 @@ import { ShoppingCart, Heart, Search, Loader2, Check } from "lucide-react";
 import Link from "next/link";
 import { addToCart } from "@/app/actions/cart";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 interface ProductCardProps {
   product: any;
@@ -15,13 +16,23 @@ interface ProductCardProps {
 export default function ProductCard({ product, view = "grid" }: ProductCardProps) {
   const isList = view === "list";
   const [isPending, startTransition] = useTransition();
-  const [isAdded, setIsAdded] = useState(false);
   const { refreshCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
+  // Toast state for local feedback
+  const [toast, setToast] = useState<{ message: string; type: 'cart' | 'wish' } | null>(null);
+
+  const isFavorited = isInWishlist(product.id);
   const hasDiscount = product.discountPercentage && product.discountPercentage > 0;
   const discountedPrice = hasDiscount
     ? product.price - (product.price * (product.discountPercentage / 100))
     : product.price;
+
+  // Helper to trigger toast
+  const triggerToast = (message: string, type: 'cart' | 'wish') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2000);
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,18 +41,36 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
     startTransition(async () => {
       try {
         await addToCart(product.id, 1);
-          await refreshCart();
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000);
+        await refreshCart();
+        triggerToast("Added to Cart!", "cart");
       } catch (error) {
         console.error("Cart error:", error);
-        alert("Could not add to cart. Please check your connection.");
       }
     });
   };
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+    if (!isFavorited) {
+      triggerToast("Saved to Wishlist!", "wish");
+    }
+  };
+
   return (
-    <Link href={`/shop/${product.id}`} className="no-underline">
+    <Link href={`/shop/${product.id}`} className="no-underline block relative">
+      {/* --- TOAST NOTIFICATION --- */}
+      {toast && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[60] w-max animate-in fade-in slide-in-from-top-1 duration-300">
+          <div className={`flex items-center gap-1.5 py-1 px-3 rounded-full shadow-md text-white text-[9px] font-bold uppercase tracking-wider font-josefin
+            ${toast.type === 'cart' ? 'bg-[#08D15F]' : 'bg-[#FB2E86]'}`}>
+            {toast.type === 'cart' ? <Check size={10} /> : <Heart size={10} fill="white" />}
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <div className={`group transition-all duration-300 ${isList
         ? "flex flex-row items-center gap-3 p-2 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md border border-[#F6F7FB] dark:border-slate-800 rounded-sm"
         : "flex flex-col items-center bg-white dark:bg-slate-900 w-full max-w-[200px] mx-auto"
@@ -61,12 +90,15 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
           {!isList && (
             <div className="absolute bottom-2 left-[-40px] group-hover:left-2 flex flex-col gap-1.5 transition-all duration-300 opacity-0 max-md:opacity-100 md:group-hover:opacity-100">
               <IconButton 
-                icon={isPending ? <Loader2 size={13} className="animate-spin" /> : isAdded ? <Check size={13} /> : <ShoppingCart size={13} />} 
+                icon={isPending ? <Loader2 size={13} className="animate-spin" /> : <ShoppingCart size={13} />} 
                 onClick={handleAddToCart}
-                active={isAdded}
                 disabled={isPending}
               />
-              <IconButton icon={<Heart size={13} />} />
+              <IconButton 
+                active={isFavorited} 
+                icon={<Heart size={13} fill={isFavorited ? "currentColor" : "none"} />} 
+                onClick={handleWishlistToggle}
+              />
               <IconButton icon={<Search size={13} />} />
             </div>
           )}
@@ -102,12 +134,15 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
               </p>
               <div className="flex gap-1.5">
                 <IconButton 
-                  icon={isPending ? <Loader2 size={13} className="animate-spin" /> : isAdded ? <Check size={13} /> : <ShoppingCart size={13} />} 
+                  icon={isPending ? <Loader2 size={13} className="animate-spin" /> : <ShoppingCart size={13} />} 
                   onClick={handleAddToCart}
-                  active={isAdded}
                   disabled={isPending}
                 />
-                <IconButton icon={<Heart size={13} />} />
+                <IconButton 
+                  active={isFavorited} 
+                  icon={<Heart size={13} fill={isFavorited ? "currentColor" : "none"} />} 
+                  onClick={handleWishlistToggle}
+                />
                 <IconButton icon={<Search size={13} />} />
               </div>
             </>
@@ -142,10 +177,10 @@ function IconButton({
       disabled={disabled}
       className={`p-1.5 rounded-full shadow-sm transition-all border flex items-center justify-center
         ${active 
-          ? "bg-green-500 text-white border-green-500" 
+          ? "bg-[#FB2E86] text-white border-[#FB2E86]" 
           : "bg-white dark:bg-slate-800 text-[#151875] dark:text-white hover:bg-[#FB2E86] hover:text-white border-gray-100 dark:border-slate-700"
         }
-        ${disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
+        ${disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer active:scale-90"}
       `} 
       onClick={internalClick}
     >

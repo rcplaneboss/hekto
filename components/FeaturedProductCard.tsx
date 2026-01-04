@@ -6,39 +6,60 @@ import { ShoppingCart, Heart, Search, Loader2, Check } from "lucide-react";
 import Link from "next/link";
 import { addToCart } from "@/app/actions/cart"; 
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
+// Define the interface for props to include the new trigger function
+interface FeaturedProductCardProps {
+  product: any;
+  onQuickView: () => void; // Function passed from FeaturedCarouselWrapper
+}
 
-export default function FeaturedProductCard({ product }: { product: any }) {
+export default function FeaturedProductCard({ product, onQuickView }: FeaturedProductCardProps) {
   const { refreshCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  
   const [isActive, setIsActive] = useState(false);
-  const [isPending, startTransition] = useTransition(); 
-  const [isAdded, setIsAdded] = useState(false); 
+  const [isPending, startTransition] = useTransition();
+  const [toast, setToast] = useState<{ message: string; type: 'cart' | 'wish' } | null>(null);
+
+  const isFavorited = isInWishlist(product.id);
+
+  const triggerToast = (message: string, type: 'cart' | 'wish') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2500);
+  };
 
   const toggleActive = () => {
-   
     if (window.matchMedia("(max-width: 1024px)").matches) {
       setIsActive(!isActive);
     }
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Stop the card from flipping/navigating
-    
+    e.stopPropagation();
     startTransition(async () => {
       try {
-        // Defaulting to 1 quantity. 
-        // Note: For cards, we usually add the base product. 
-        // Specific colors/sizes are usually selected on the details page.
         await addToCart(product.id, 1);
         await refreshCart();
-        // Show success state
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
+        triggerToast("Added to Cart!", "cart");
       } catch (error) {
         console.error("Failed to add to cart", error);
-        alert("Please login to add items to cart.");
       }
     });
+  };
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleWishlist(product);
+    if (!isFavorited) {
+      triggerToast("Saved to Wishlist!", "wish");
+    }
+  };
+
+  // Trigger the parent's Quick View logic
+  const handleQuickViewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onQuickView();
   };
 
   return (
@@ -48,6 +69,16 @@ export default function FeaturedProductCard({ product }: { product: any }) {
       ${isActive ? "shadow-xl border-gray-100 dark:border-slate-800" : "hover:shadow-xl hover:border-gray-100 dark:hover:border-slate-800"} 
       touch-manipulation cursor-pointer`}
     >
+      {/* --- TOAST NOTIFICATION --- */}
+      {toast && (
+        <div className="absolute top-12 left-0 right-0 z-[60] px-4 animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-none">
+          <div className={`flex items-center justify-center gap-2 py-2 px-3 rounded-full shadow-lg text-white text-[10px] font-bold uppercase tracking-widest font-josefin
+            ${toast.type === 'cart' ? 'bg-[#08D15F]' : 'bg-[#FB2E86]'}`}>
+            {toast.type === 'cart' ? <Check size={12} /> : <Heart size={12} fill="white" />}
+            {toast.message}
+          </div>
+        </div>
+      )}
       
       {/* 1. TOP SECTION */}
       <div className={`relative h-[230px] w-full flex justify-center items-center transition-colors duration-300
@@ -59,36 +90,28 @@ export default function FeaturedProductCard({ product }: { product: any }) {
             ? "opacity-100 translate-x-0" 
             : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"}`}>
           
-          {/* --- ADD TO CART BUTTON --- */}
           <button 
             onClick={handleAddToCart}
             disabled={isPending}
-            className={`p-1.5 rounded-full transition-colors shadow-sm flex items-center justify-center w-8 h-8
-              ${isAdded 
-                ? "bg-green-500 text-white hover:bg-green-600" 
-                : "bg-white dark:bg-slate-700 text-[#1389FF] hover:bg-[#2F1AC4] hover:text-white"
-              }
-            `}
-            title="Add to Cart"
+            className={`p-1.5 rounded-full transition-all shadow-sm flex items-center justify-center w-8 h-8
+              ${isPending ? "bg-gray-100 text-gray-400" : "bg-white dark:bg-slate-700 text-[#1389FF] hover:bg-[#2F1AC4] hover:text-white"}`}
           >
-            {isPending ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : isAdded ? (
-              <Check size={14} />
-            ) : (
-              <ShoppingCart size={14} />
-            )}
+            {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShoppingCart size={14} />}
           </button>
 
           <button 
-            onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-[#1389FF] hover:bg-white dark:hover:bg-slate-600 rounded-full transition-colors w-8 h-8 flex items-center justify-center"
+            onClick={handleWishlistToggle}
+            className={`p-1.5 rounded-full transition-all shadow-sm flex items-center justify-center w-8 h-8
+              ${isFavorited 
+                ? "bg-[#FB2E86] text-white" 
+                : "bg-white dark:bg-slate-700 text-[#1389FF] hover:bg-[#FB2E86] hover:text-white"}`}
           >
-            <Heart size={14} />
+            <Heart size={14} fill={isFavorited ? "currentColor" : "none"} />
           </button>
+
           <button 
-            onClick={(e) => e.stopPropagation()}
-            className="p-1.5 text-[#1389FF] hover:bg-white dark:hover:bg-slate-600 rounded-full transition-colors w-8 h-8 flex items-center justify-center"
+            onClick={handleQuickViewClick} // Updated to call the parent handler
+            className="p-1.5 text-[#1389FF] bg-white dark:bg-slate-700 hover:bg-[#1389FF] hover:text-white rounded-full shadow-sm transition-colors w-8 h-8 flex items-center justify-center"
           >
             <Search size={14} />
           </button>
@@ -106,13 +129,8 @@ export default function FeaturedProductCard({ product }: { product: any }) {
           />
         </div>
         
-        {/* View Details Button */}
-        <div 
-          className={`absolute bottom-3 left-1/2 -translate-x-1/2 transition-all duration-300
-          ${isActive 
-            ? "opacity-100 translate-y-0" 
-            : "opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"}`}
-        >
+        <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 transition-all duration-300
+          ${isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"}`}>
           <Link 
             href={`/shop/${product.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -132,7 +150,6 @@ export default function FeaturedProductCard({ product }: { product: any }) {
           {product.name}
         </h3>
         
-        {/* Color Dots */}
         <div className="flex justify-center gap-1 mb-2">
           {product.colors && product.colors.length > 0 ? (
             product.colors.map((color: string, index: number) => (
