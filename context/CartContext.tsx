@@ -1,37 +1,52 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getCart } from "@/app/actions/cart";
 
-const CartContext = createContext<{
+interface CartContextType {
+  cart: any | null;
   cartCount: number;
+  subtotal: number;
   refreshCart: () => Promise<void>;
-}>({
+  isLoading: boolean;
+}
+
+const CartContext = createContext<CartContextType>({
+  cart: null,
   cartCount: 0,
+  subtotal: 0,
   refreshCart: async () => {},
+  isLoading: true,
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cartCount, setCartCount] = useState(0);
+  const [cart, setCart] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const refreshCart = async () => {
+  const refreshCart = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const cart = await getCart();
-      if (cart?.items) {
-        const total = cart.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
-        setCartCount(total);
-      }
+      const data = await getCart();
+      setCart(data);
     } catch (error) {
       console.error("Cart sync error:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    refreshCart();
   }, []);
 
+  // Auto-refresh on mount
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
+
+  // Derived values
+  const cartCount = cart?.items?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0;
+  const subtotal = cart?.items?.reduce((acc: number, item: any) => 
+    acc + (item.product.price * item.quantity), 0) || 0;
+
   return (
-    <CartContext.Provider value={{ cartCount, refreshCart }}>
+    <CartContext.Provider value={{ cart, cartCount, subtotal, refreshCart, isLoading }}>
       {children}
     </CartContext.Provider>
   );

@@ -14,6 +14,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
   const [selectedImage, setSelectedImage] = useState(product?.imageUrl);
   const [activeTab, setActiveTab] = useState("description");
   const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -31,6 +32,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
   useEffect(() => {
     if (product?.imageUrl) setSelectedImage(product.imageUrl);
     if (product?.colors?.length > 0) setSelectedColor(product.colors[0]);
+    if (product?.size?.length > 0) setSelectedSize(product.size[0]);
 
     const fetchRelated = async () => {
       if (product?.categoryId) {
@@ -149,7 +151,22 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                 </div>
               </div>
             )}
-
+            {product.size?.length > 0 && (
+              <div className="mb-6">
+                <p className="text-[#0D134E] dark:text-slate-200 font-bold mb-2">Size</p>
+                <div className="flex gap-3">
+                  {product.size.map((size: string) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 border rounded-md transition-all ${selectedSize === size ? "border-[#FB2E86] bg-[#FB2E86] text-white" : "border-gray-300 dark:border-slate-700 dark:text-white"}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-[#A9ACC6] dark:text-slate-400 leading-[1.8] mb-6 text-sm md:text-base">
               {product.description}
             </p>

@@ -2,10 +2,11 @@
 
 import {prisma} from "@/lib/db";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_noStore as noStore } from "next/cache";
 
 // 1. Get the Cart
 export async function getCart() {
+noStore();
   const session = await auth();
   const user = session?.user;
 
@@ -79,6 +80,7 @@ export async function addToCart(productId: string, quantity: number, color?: str
   }
 
   revalidatePath("/cart");
+  revalidatePath("/checkout");
   return { success: true };
 }
 

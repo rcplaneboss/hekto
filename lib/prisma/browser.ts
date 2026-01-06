@@ -147,3 +147,13 @@ export type Wishlist = Prisma.WishlistModel
  * 
  */
 export type WishlistItem = Prisma.WishlistItemModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel

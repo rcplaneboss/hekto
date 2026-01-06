@@ -33,10 +33,11 @@ export type BlogPostMinAggregateOutputType = {
   author: string | null
   mainImage: string | null
   publishedAt: Date | null
-  createdAt: Date | null
-  updatedAt: Date | null
   category: string | null
   isFeatured: boolean | null
+  videoUrl: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BlogPostMaxAggregateOutputType = {
@@ -48,10 +49,11 @@ export type BlogPostMaxAggregateOutputType = {
   author: string | null
   mainImage: string | null
   publishedAt: Date | null
-  createdAt: Date | null
-  updatedAt: Date | null
   category: string | null
   isFeatured: boolean | null
+  videoUrl: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BlogPostCountAggregateOutputType = {
@@ -63,11 +65,12 @@ export type BlogPostCountAggregateOutputType = {
   author: number
   mainImage: number
   publishedAt: number
-  createdAt: number
-  updatedAt: number
   category: number
   tags: number
   isFeatured: number
+  videoUrl: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -81,10 +84,11 @@ export type BlogPostMinAggregateInputType = {
   author?: true
   mainImage?: true
   publishedAt?: true
-  createdAt?: true
-  updatedAt?: true
   category?: true
   isFeatured?: true
+  videoUrl?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BlogPostMaxAggregateInputType = {
@@ -96,10 +100,11 @@ export type BlogPostMaxAggregateInputType = {
   author?: true
   mainImage?: true
   publishedAt?: true
-  createdAt?: true
-  updatedAt?: true
   category?: true
   isFeatured?: true
+  videoUrl?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BlogPostCountAggregateInputType = {
@@ -111,11 +116,12 @@ export type BlogPostCountAggregateInputType = {
   author?: true
   mainImage?: true
   publishedAt?: true
-  createdAt?: true
-  updatedAt?: true
   category?: true
   tags?: true
   isFeatured?: true
+  videoUrl?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -200,11 +206,12 @@ export type BlogPostGroupByOutputType = {
   author: string
   mainImage: string
   publishedAt: Date
-  createdAt: Date
-  updatedAt: Date
-  category: string | null
+  category: string
   tags: string[]
   isFeatured: boolean
+  videoUrl: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: BlogPostCountAggregateOutputType | null
   _min: BlogPostMinAggregateOutputType | null
   _max: BlogPostMaxAggregateOutputType | null
@@ -237,11 +244,12 @@ export type BlogPostWhereInput = {
   author?: Prisma.StringFilter<"BlogPost"> | string
   mainImage?: Prisma.StringFilter<"BlogPost"> | string
   publishedAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
-  createdAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
-  category?: Prisma.StringNullableFilter<"BlogPost"> | string | null
+  category?: Prisma.StringFilter<"BlogPost"> | string
   tags?: Prisma.StringNullableListFilter<"BlogPost">
   isFeatured?: Prisma.BoolFilter<"BlogPost"> | boolean
+  videoUrl?: Prisma.StringNullableFilter<"BlogPost"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
 }
 
 export type BlogPostOrderByWithRelationInput = {
@@ -253,11 +261,12 @@ export type BlogPostOrderByWithRelationInput = {
   author?: Prisma.SortOrder
   mainImage?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BlogPostWhereUniqueInput = Prisma.AtLeast<{
@@ -272,11 +281,12 @@ export type BlogPostWhereUniqueInput = Prisma.AtLeast<{
   author?: Prisma.StringFilter<"BlogPost"> | string
   mainImage?: Prisma.StringFilter<"BlogPost"> | string
   publishedAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
-  createdAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
-  category?: Prisma.StringNullableFilter<"BlogPost"> | string | null
+  category?: Prisma.StringFilter<"BlogPost"> | string
   tags?: Prisma.StringNullableListFilter<"BlogPost">
   isFeatured?: Prisma.BoolFilter<"BlogPost"> | boolean
+  videoUrl?: Prisma.StringNullableFilter<"BlogPost"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BlogPost"> | Date | string
 }, "id" | "slug">
 
 export type BlogPostOrderByWithAggregationInput = {
@@ -288,11 +298,12 @@ export type BlogPostOrderByWithAggregationInput = {
   author?: Prisma.SortOrder
   mainImage?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BlogPostCountOrderByAggregateInput
   _max?: Prisma.BlogPostMaxOrderByAggregateInput
   _min?: Prisma.BlogPostMinOrderByAggregateInput
@@ -310,11 +321,12 @@ export type BlogPostScalarWhereWithAggregatesInput = {
   author?: Prisma.StringWithAggregatesFilter<"BlogPost"> | string
   mainImage?: Prisma.StringWithAggregatesFilter<"BlogPost"> | string
   publishedAt?: Prisma.DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
-  category?: Prisma.StringNullableWithAggregatesFilter<"BlogPost"> | string | null
+  category?: Prisma.StringWithAggregatesFilter<"BlogPost"> | string
   tags?: Prisma.StringNullableListFilter<"BlogPost">
   isFeatured?: Prisma.BoolWithAggregatesFilter<"BlogPost"> | boolean
+  videoUrl?: Prisma.StringNullableWithAggregatesFilter<"BlogPost"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
 }
 
 export type BlogPostCreateInput = {
@@ -326,11 +338,12 @@ export type BlogPostCreateInput = {
   author?: string
   mainImage: string
   publishedAt?: Date | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  category?: string | null
+  category?: string
   tags?: Prisma.BlogPostCreatetagsInput | string[]
   isFeatured?: boolean
+  videoUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BlogPostUncheckedCreateInput = {
@@ -342,11 +355,12 @@ export type BlogPostUncheckedCreateInput = {
   author?: string
   mainImage: string
   publishedAt?: Date | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  category?: string | null
+  category?: string
   tags?: Prisma.BlogPostCreatetagsInput | string[]
   isFeatured?: boolean
+  videoUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BlogPostUpdateInput = {
@@ -358,11 +372,12 @@ export type BlogPostUpdateInput = {
   author?: Prisma.StringFieldUpdateOperationsInput | string
   mainImage?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.BlogPostUpdatetagsInput | string[]
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BlogPostUncheckedUpdateInput = {
@@ -374,11 +389,12 @@ export type BlogPostUncheckedUpdateInput = {
   author?: Prisma.StringFieldUpdateOperationsInput | string
   mainImage?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.BlogPostUpdatetagsInput | string[]
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BlogPostCreateManyInput = {
@@ -390,11 +406,12 @@ export type BlogPostCreateManyInput = {
   author?: string
   mainImage: string
   publishedAt?: Date | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  category?: string | null
+  category?: string
   tags?: Prisma.BlogPostCreatetagsInput | string[]
   isFeatured?: boolean
+  videoUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BlogPostUpdateManyMutationInput = {
@@ -406,11 +423,12 @@ export type BlogPostUpdateManyMutationInput = {
   author?: Prisma.StringFieldUpdateOperationsInput | string
   mainImage?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.BlogPostUpdatetagsInput | string[]
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BlogPostUncheckedUpdateManyInput = {
@@ -422,11 +440,12 @@ export type BlogPostUncheckedUpdateManyInput = {
   author?: Prisma.StringFieldUpdateOperationsInput | string
   mainImage?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.BlogPostUpdatetagsInput | string[]
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BlogPostCountOrderByAggregateInput = {
@@ -438,11 +457,12 @@ export type BlogPostCountOrderByAggregateInput = {
   author?: Prisma.SortOrder
   mainImage?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BlogPostMaxOrderByAggregateInput = {
@@ -454,10 +474,11 @@ export type BlogPostMaxOrderByAggregateInput = {
   author?: Prisma.SortOrder
   mainImage?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BlogPostMinOrderByAggregateInput = {
@@ -469,10 +490,11 @@ export type BlogPostMinOrderByAggregateInput = {
   author?: Prisma.SortOrder
   mainImage?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
+  videoUrl?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BlogPostCreatetagsInput = {
@@ -495,11 +517,12 @@ export type BlogPostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   author?: boolean
   mainImage?: boolean
   publishedAt?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
   category?: boolean
   tags?: boolean
   isFeatured?: boolean
+  videoUrl?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["blogPost"]>
 
 export type BlogPostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -511,11 +534,12 @@ export type BlogPostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   author?: boolean
   mainImage?: boolean
   publishedAt?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
   category?: boolean
   tags?: boolean
   isFeatured?: boolean
+  videoUrl?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["blogPost"]>
 
 export type BlogPostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -527,11 +551,12 @@ export type BlogPostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   author?: boolean
   mainImage?: boolean
   publishedAt?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
   category?: boolean
   tags?: boolean
   isFeatured?: boolean
+  videoUrl?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["blogPost"]>
 
 export type BlogPostSelectScalar = {
@@ -543,14 +568,15 @@ export type BlogPostSelectScalar = {
   author?: boolean
   mainImage?: boolean
   publishedAt?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
   category?: boolean
   tags?: boolean
   isFeatured?: boolean
+  videoUrl?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BlogPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "content" | "excerpt" | "author" | "mainImage" | "publishedAt" | "createdAt" | "updatedAt" | "category" | "tags" | "isFeatured", ExtArgs["result"]["blogPost"]>
+export type BlogPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "content" | "excerpt" | "author" | "mainImage" | "publishedAt" | "category" | "tags" | "isFeatured" | "videoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["blogPost"]>
 
 export type $BlogPostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BlogPost"
@@ -564,11 +590,12 @@ export type $BlogPostPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     author: string
     mainImage: string
     publishedAt: Date
-    createdAt: Date
-    updatedAt: Date
-    category: string | null
+    category: string
     tags: string[]
     isFeatured: boolean
+    videoUrl: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["blogPost"]>
   composites: {}
 }
@@ -1000,11 +1027,12 @@ export interface BlogPostFieldRefs {
   readonly author: Prisma.FieldRef<"BlogPost", 'String'>
   readonly mainImage: Prisma.FieldRef<"BlogPost", 'String'>
   readonly publishedAt: Prisma.FieldRef<"BlogPost", 'DateTime'>
-  readonly createdAt: Prisma.FieldRef<"BlogPost", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"BlogPost", 'DateTime'>
   readonly category: Prisma.FieldRef<"BlogPost", 'String'>
   readonly tags: Prisma.FieldRef<"BlogPost", 'String[]'>
   readonly isFeatured: Prisma.FieldRef<"BlogPost", 'Boolean'>
+  readonly videoUrl: Prisma.FieldRef<"BlogPost", 'String'>
+  readonly createdAt: Prisma.FieldRef<"BlogPost", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BlogPost", 'DateTime'>
 }
     
 
