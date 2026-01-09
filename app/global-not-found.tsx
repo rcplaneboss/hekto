@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import PageHeader from '@/components/PageHeader'
+import HeaderContainer from '@/components/header/HeaderContainer'
  
 const josefin = Josefin_Sans({ subsets: ['latin'], display: 'swap' })
  
@@ -17,6 +18,7 @@ export default function GlobalNotFound() {
   return (
     <html lang="en" className={josefin.className}>
       <body>
+        <HeaderContainer />
         <PageHeader title='404 Not Found' />
         <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 px-4">
         <Image src="/images/not-found.png" alt="404 Error" width={300} height={300} className="mb-8" />
