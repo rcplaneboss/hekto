@@ -436,6 +436,17 @@ model OrderItem {
   size     String?
 }
 
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Selina Gomez"
+  role      String   // e.g., "Ceo At Webecy Digital"
+  content   String   @db.Text
+  imageUrl  String   // Client avatar
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 enum OrderStatus {
   PENDING
   PROCESSING
@@ -443,3 +454,4 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
 }
+

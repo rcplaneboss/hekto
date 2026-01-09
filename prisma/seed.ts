@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '../lib/prisma/client';
+import { PrismaClient } from '../lib/prisma/client';
 
 import { PrismaPg } from '@prisma/adapter-pg'
 
@@ -148,43 +148,94 @@ console.log("Seeding services...");
 
 
 
-  const blogs = [
-    {
-      title: "Top essential Trends in 2021",
-      slug: "top-essential-trends-2021-1",
-      author: "SoberAli",
-      excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
-      content: "Full blog content goes here for the single page view...",
-      mainImage: "/images/blog-1.png", // Replace with your actual image path
-      publishedAt: new Date("2020-08-21"),
-    },
-    {
-      title: "Top essential trends in 2021",
-      slug: "top-essential-trends-2021-2",
-      author: "Surfauxion",
-      excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
-      content: "Full blog content goes here...",
-      mainImage: "/images/blog-2.png",
-      publishedAt: new Date("2020-08-21"),
-    },
-    {
-      title: "Top essential Trends in 2021",
-      slug: "top-essential-trends-2021-3",
-      author: "SoberAli",
-      excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
-      content: "Full blog content goes here...",
-      mainImage: "/images/blog-3.png",
-      publishedAt: new Date("2020-08-21"),
-    },
-  ];
+//   const blogs = [
+//     {
+//       title: "Top essential Trends in 2021",
+//       slug: "top-essential-trends-2021-1",
+//       author: "SoberAli",
+//       excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
+//       content: "Full blog content goes here for the single page view...",
+//       mainImage: "/images/blog-1.png", // Replace with your actual image path
+//       publishedAt: new Date("2020-08-21"),
+//     },
+//     {
+//       title: "Top essential trends in 2021",
+//       slug: "top-essential-trends-2021-2",
+//       author: "Surfauxion",
+//       excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
+//       content: "Full blog content goes here...",
+//       mainImage: "/images/blog-2.png",
+//       publishedAt: new Date("2020-08-21"),
+//     },
+//     {
+//       title: "Top essential Trends in 2021",
+//       slug: "top-essential-trends-2021-3",
+//       author: "SoberAli",
+//       excerpt: "More off this less hello samlande lied much over tightly circa horse taped mightly",
+//       content: "Full blog content goes here...",
+//       mainImage: "/images/blog-3.png",
+//       publishedAt: new Date("2020-08-21"),
+//     },
+//   ];
 
-  for (const blog of blogs) {
-    await prisma.blogPost.create({
-      data: blog,
-    });
-  }
+//   for (const blog of blogs) {
+//     await prisma.blogPost.create({
+//       data: blog,
+//     });
+//   }
 
-  console.log("Hekto Database has been seeded! 🌱")
+//   console.log("Hekto Database has been seeded! 🌱")
+// }
+
+
+// await prisma.pageContent.upsert({
+//     where: { slug: 'about-us' },
+//     update: {},
+//     create: {
+//       slug: 'about-us',
+//       title: 'Know About Our Ecommerce Business, History',
+//       content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mattis neque ultrices mattis aliquam, malesuada diam est. Malesuada sem tristique amet erat vitae eget dolor lobortis. Accumsan faucibus vitae lobortis quis bibendum quam.',
+//     },
+//   })
+
+//   // 2. Seed Testimonials (Our Client Say)
+//   const testimonials = [
+//     {
+//       name: 'Selina Gomez',
+//       role: 'Ceo At Webecy Digital',
+//       content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Non duis ultrices quam vel dui sollicitudin aliquet id et. Maecenas a lorem est. Aliquam id vitae scelerisque risus aliquet faucibus.',
+//       imageUrl: '/images/client2.png', // The main focused client
+//       order: 1,
+//     },
+//     {
+//       name: 'John Doe',
+//       role: 'Marketing Head',
+//       content: 'Great experience working with this platform. The quality and delivery are top-notch.',
+//       imageUrl: '/images/client1.png',
+//       order: 0,
+//     },
+//     {
+//       name: 'Jane Smith',
+//       role: 'Designer',
+//       content: 'The attention to detail in their products is unmatched. Highly recommended!',
+//       imageUrl: '/images/client3.png',
+//       order: 2,
+//     }
+//   ]
+
+//   for (const t of testimonials) {
+//     await prisma.testimonial.create({ data: t })
+//   }
+await prisma.pageContent.upsert({
+  where: { slug: "contact-us" },
+  update: {},
+  create: {
+    slug: "contact-us",
+    title: "Information About us",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mattis neque ultrices mattis aliquam, malesuada diam est. Malesuada sem tristique amet erat vitae eget dolor lobortis.",
+  },
+});
+  console.log('✅ About Page data seeded successfully')
 }
 
 main()

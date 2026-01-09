@@ -3,6 +3,7 @@ import BlogCard from "@/components/blog/BlogCard";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import { prisma } from "@/lib/db"; 
 import { Suspense } from "react";
+import Link from "next/link";
 
 interface BlogPageProps {
   searchParams: Promise<{ 
@@ -17,6 +18,24 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const { category, tag, query, page } = await searchParams;
   const currentPage = Number(page) || 1;
   const pageSize = 3;
+
+  // Get total count for dynamic pagination
+  const totalPosts = await prisma.blogPost.count({
+    where: {
+      AND: [
+        category ? { category: category } : {},
+        tag ? { tags: { has: tag } } : {},
+        query ? {
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { excerpt: { contains: query, mode: 'insensitive' } },
+          ]
+        } : {},
+      ]
+    }
+  });
+
+  const totalPages = Math.ceil(totalPosts / pageSize);
 
   const [posts, categoryData, recentPosts] = await Promise.all([
     prisma.blogPost.findMany({
@@ -48,12 +67,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   ]);
 
   return (
-    // FIX: Force background and text colors for the whole page
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <PageHeader title="Blog Page" />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-        {/* FIX: justify-center + gap ensures the 75/25 split feels balanced */}
         <div className="flex flex-col lg:flex-row gap-12 xl:gap-20 justify-center items-start">
           
           {/* LEFT: Blog Feed */}
@@ -68,20 +85,32 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             )}
 
             {/* Pagination */}
-            <nav className="flex justify-center gap-3 pt-10">
-              {[1, 2, 3, 4].map((num) => (
-                <button 
-                  key={num} 
-                  className={`w-10 h-10 rounded-lg font-josefin flex items-center justify-center transition-all shadow-sm border ${
-                    num === currentPage 
-                    ? "bg-[#FB2E86] border-[#FB2E86] text-white" 
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-[#FB2E86] hover:text-[#FB2E86]"
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
-            </nav>
+            {totalPages > 1 && (
+              <nav className="flex justify-center gap-3 pt-10">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => {
+                  // Build dynamic URL to keep filters active while paginating
+                  const params = new URLSearchParams();
+                  if (category) params.set("category", category);
+                  if (tag) params.set("tag", tag);
+                  if (query) params.set("query", query);
+                  params.set("page", num.toString());
+
+                  return (
+                    <Link 
+                      key={num} 
+                      href={`/blog?${params.toString()}`}
+                      className={`w-10 h-10 rounded-lg font-josefin flex items-center justify-center transition-all shadow-sm border ${
+                        num === currentPage 
+                        ? "bg-[#FB2E86] border-[#FB2E86] text-white" 
+                        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-[#FB2E86] hover:text-[#FB2E86]"
+                      }`}
+                    >
+                      {num}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
           </section>
 
           {/* RIGHT: Sidebar */}
