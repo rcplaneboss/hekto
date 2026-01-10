@@ -15,11 +15,13 @@ import {
   Settings,
 } from "lucide-react";
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 interface NavItem {
   label: string;
-  href: string;
-  icon: string; // icon name to map on client
+  href?: string;
+  icon: string;
+  children?: NavItem[];
 }
 
 const ICON_MAP: Record<string, any> = {
@@ -40,6 +42,7 @@ const ICON_MAP: Record<string, any> = {
 export default function AdminLayoutClient({ children, navItems }: { children: React.ReactNode; navItems: NavItem[] }) {
   const pathname = usePathname();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
 
   return (
     <div className="flex min-h-screen bg-[#F6F7FB] dark:bg-slate-950 transition-colors">
@@ -63,12 +66,52 @@ export default function AdminLayoutClient({ children, navItems }: { children: Re
         {/* Navigation */}
         <nav className="flex-1 px-4 space-y-2 mt-4">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = ICON_MAP[item.icon] || LayoutDashboard
+            const isActive = item.href && pathname === item.href;
+            const hasChildren = item.children && item.children.length > 0;
+            const isExpanded = expandedMenu === item.label;
+            const Icon = ICON_MAP[item.icon] || LayoutDashboard;
+
+            if (hasChildren) {
+              return (
+                <div key={item.label}>
+                  <button
+                    onClick={() => setExpandedMenu(isExpanded ? null : item.label)}
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group text-indigo-100 hover:bg-white/10 hover:translate-x-1"
+                  >
+                    <Icon size={22} className="text-indigo-300 group-hover:text-white" />
+                    <span className="font-medium flex-1 text-left">{item.label}</span>
+                    <ChevronDown size={18} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                  </button>
+                  {isExpanded && (
+                    <div className="mt-1 ml-4 space-y-1 border-l border-indigo-300/30 pl-0">
+                      {item.children!.map((child) => {
+                        const childActive = child.href && pathname === child.href;
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href!}
+                            className={`flex items-center gap-4 px-4 py-2.5 rounded-lg transition-all text-sm
+                              ${
+                                childActive
+                                  ? "bg-[#FB2E86] text-white shadow-lg shadow-pink-500/20"
+                                  : "text-indigo-200 hover:bg-white/10 hover:translate-x-1"
+                              }
+                            `}
+                          >
+                            <span className="font-medium">{child.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href!}
                 className={`
                   flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group
                   ${isActive 

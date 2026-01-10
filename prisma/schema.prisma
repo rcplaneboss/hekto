@@ -86,6 +86,10 @@ model StoreSetting {
   // Brand
   logoText String @default("Hekto")
 
+  // Store Configuration
+  currency String @default("NGN")
+  taxRate Float @default(7.5)
+
   // Footer General (From your screenshot)
   footerAddress String @default("17 Princess Road, London, Greater London NW1 8JR, UK")
   copyright     String @default("©Webecy - All Rights Reserved")

@@ -174,7 +174,7 @@ function StatCard({ label, value, href, Icon, color }: { label: string; value: n
           </div>
           <div>
             <p className="text-sm text-slate-500 font-lato">{label}</p>
-            <p className="text-2xl font-bold mt-1">{value}</p>
+            <p className="text-2xl font-bold mt-1 dark:text-white">{value}</p>
           </div>
         </div>
         <div className="text-slate-400 text-xs font-lato">View</div>

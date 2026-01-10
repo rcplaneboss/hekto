@@ -3,17 +3,46 @@ import { requireAdmin } from "@/lib/auth-utils"
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/admin", icon: "LayoutDashboard" },
-  { label: "Products", href: "/admin/products", icon: "ShoppingBag" },
-  { label: "Categories", href: "/admin/categories", icon: "Layers" },
-  { label: "Orders", href: "/admin/orders", icon: "ShoppingCart" },
-  { label: "Customers", href: "/admin/users", icon: "Users" },
-  { label: "Promo", href: "/admin/promo", icon: "Gift" },
-  { label: "Trending", href: "/admin/trending", icon: "Flame" },
-  { label: "Banner", href: "/admin/banner", icon: "Image" },
-  { label: "Reviews", href: "/admin/reviews", icon: "Star" },
-  { label: "Blog", href: "/admin/blog", icon: "BookOpen" },
+  {
+    label: "Catalog",
+    icon: "ShoppingBag",
+    children: [
+      { label: "Products", href: "/admin/products" },
+      { label: "Categories", href: "/admin/categories" },
+      { label: "Reviews", href: "/admin/reviews" },
+    ],
+  },
+  {
+    label: "Orders",
+    icon: "ShoppingCart",
+    children: [
+      { label: "Orders", href: "/admin/orders" },
+      { label: "Customers", href: "/admin/users" },
+    ],
+  },
+  {
+    label: "Marketing",
+    icon: "Gift",
+    children: [
+      { label: "Promo", href: "/admin/promo" },
+      { label: "Trending", href: "/admin/trending" },
+      { label: "Banner", href: "/admin/banner" },
+      { label: "Blog", href: "/admin/blog" },
+    ],
+  },
   { label: "Analytics", href: "/admin/analytics", icon: "BarChart2" },
-  { label: "Settings", href: "/admin/settings", icon: "Settings" },
+  {
+    label: "Settings",
+    icon: "Settings",
+    children: [
+      { label: "Store Settings", href: "/admin/settings/store" },
+      { label: "Navigation Links", href: "/admin/settings/nav" },
+      { label: "Static Pages", href: "/admin/settings/pages" },
+      { label: "Newsletter", href: "/admin/settings/newsletter" },
+      { label: "Contact Submissions", href: "/admin/settings/contact" },
+      { label: "Site Configuration", href: "/admin/settings/config" },
+    ],
+  },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
