@@ -3,7 +3,19 @@ import Google from "next-auth/providers/google"
 import Resend from "next-auth/providers/resend"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/db"
-import { html } from "@/lib/email-template" 
+import { html } from "@/lib/email-template"
+import type { Session } from "next-auth"
+import type { User as PrismaUser } from "@/lib/prisma"
+
+// Extend session and token types to include role
+declare module "next-auth" {
+  interface Session {
+    user: Session["user"] & {
+      id: string
+      role: "USER" | "ADMIN"
+    }
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -46,6 +58,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
+        session.user.role = (user as PrismaUser).role as "USER" | "ADMIN";
       }
       return session;
     },

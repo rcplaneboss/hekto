@@ -226,14 +226,36 @@ console.log("Seeding services...");
 //   for (const t of testimonials) {
 //     await prisma.testimonial.create({ data: t })
 //   }
-await prisma.pageContent.upsert({
-  where: { slug: "contact-us" },
-  update: {},
-  create: {
-    slug: "contact-us",
-    title: "Information About us",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mattis neque ultrices mattis aliquam, malesuada diam est. Malesuada sem tristique amet erat vitae eget dolor lobortis.",
-  },
+// await prisma.pageContent.upsert({
+//   where: { slug: "contact-us" },
+//   update: {},
+//   create: {
+//     slug: "contact-us",
+//     title: "Information About us",
+//     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mattis neque ultrices mattis aliquam, malesuada diam est. Malesuada sem tristique amet erat vitae eget dolor lobortis.",
+//   },
+// });
+
+// Add inside main()
+await prisma.faq.createMany({
+  data: [
+    {
+      question: "Eu dictumst cum at sed euismod condimentum?",
+      answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt sed tristique mollis vitae, consequat gravida sagittis.",
+    },
+    {
+      question: "Magna bibendum est fermentum eros.",
+      answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt sed tristique mollis vitae, consequat gravida sagittis.",
+    },
+    {
+      question: "Odio muskana hak eris conseekin sceleton?",
+      answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt sed tristique mollis vitae, consequat gravida sagittis.",
+    },
+    {
+      question: "Elit id blandit sabara boi velit gua mara?",
+      answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt sed tristique mollis vitae, consequat gravida sagittis.",
+    },
+  ],
 });
   console.log('✅ About Page data seeded successfully')
 }

@@ -162,3 +162,8 @@ export type OrderItem = Prisma.OrderItemModel
  * 
  */
 export type Testimonial = Prisma.TestimonialModel
+/**
+ * Model Faq
+ * 
+ */
+export type Faq = Prisma.FaqModel

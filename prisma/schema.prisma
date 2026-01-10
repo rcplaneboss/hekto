@@ -7,12 +7,19 @@ datasource db {
   provider = "postgresql"
 }
 
+// --- USER ROLES FOR AUTHORIZATION ---
+enum UserRole {
+  USER  // Regular customer
+  ADMIN // Admin dashboard access
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
   emailVerified DateTime?
   image         String?
+  role          UserRole  @default(USER)
   wishlist      Wishlist?
   accounts      Account[]
   sessions      Session[]
@@ -455,3 +462,10 @@ enum OrderStatus {
   CANCELLED
 }
 
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  createdAt DateTime @default(now())
+}
