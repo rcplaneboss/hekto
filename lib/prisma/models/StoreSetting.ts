@@ -20,8 +20,18 @@ export type StoreSettingModel = runtime.Types.Result.DefaultSelection<Prisma.$St
 
 export type AggregateStoreSetting = {
   _count: StoreSettingCountAggregateOutputType | null
+  _avg: StoreSettingAvgAggregateOutputType | null
+  _sum: StoreSettingSumAggregateOutputType | null
   _min: StoreSettingMinAggregateOutputType | null
   _max: StoreSettingMaxAggregateOutputType | null
+}
+
+export type StoreSettingAvgAggregateOutputType = {
+  taxRate: number | null
+}
+
+export type StoreSettingSumAggregateOutputType = {
+  taxRate: number | null
 }
 
 export type StoreSettingMinAggregateOutputType = {
@@ -31,6 +41,8 @@ export type StoreSettingMinAggregateOutputType = {
   allowLanguage: boolean | null
   allowCurrency: boolean | null
   logoText: string | null
+  currency: string | null
+  taxRate: number | null
   footerAddress: string | null
   copyright: string | null
   updatedAt: Date | null
@@ -43,6 +55,8 @@ export type StoreSettingMaxAggregateOutputType = {
   allowLanguage: boolean | null
   allowCurrency: boolean | null
   logoText: string | null
+  currency: string | null
+  taxRate: number | null
   footerAddress: string | null
   copyright: string | null
   updatedAt: Date | null
@@ -55,12 +69,22 @@ export type StoreSettingCountAggregateOutputType = {
   allowLanguage: number
   allowCurrency: number
   logoText: number
+  currency: number
+  taxRate: number
   footerAddress: number
   copyright: number
   updatedAt: number
   _all: number
 }
 
+
+export type StoreSettingAvgAggregateInputType = {
+  taxRate?: true
+}
+
+export type StoreSettingSumAggregateInputType = {
+  taxRate?: true
+}
 
 export type StoreSettingMinAggregateInputType = {
   id?: true
@@ -69,6 +93,8 @@ export type StoreSettingMinAggregateInputType = {
   allowLanguage?: true
   allowCurrency?: true
   logoText?: true
+  currency?: true
+  taxRate?: true
   footerAddress?: true
   copyright?: true
   updatedAt?: true
@@ -81,6 +107,8 @@ export type StoreSettingMaxAggregateInputType = {
   allowLanguage?: true
   allowCurrency?: true
   logoText?: true
+  currency?: true
+  taxRate?: true
   footerAddress?: true
   copyright?: true
   updatedAt?: true
@@ -93,6 +121,8 @@ export type StoreSettingCountAggregateInputType = {
   allowLanguage?: true
   allowCurrency?: true
   logoText?: true
+  currency?: true
+  taxRate?: true
   footerAddress?: true
   copyright?: true
   updatedAt?: true
@@ -137,6 +167,18 @@ export type StoreSettingAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: StoreSettingAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: StoreSettingSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: StoreSettingMinAggregateInputType
@@ -167,6 +209,8 @@ export type StoreSettingGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: StoreSettingCountAggregateInputType | true
+  _avg?: StoreSettingAvgAggregateInputType
+  _sum?: StoreSettingSumAggregateInputType
   _min?: StoreSettingMinAggregateInputType
   _max?: StoreSettingMaxAggregateInputType
 }
@@ -178,10 +222,14 @@ export type StoreSettingGroupByOutputType = {
   allowLanguage: boolean
   allowCurrency: boolean
   logoText: string
+  currency: string
+  taxRate: number
   footerAddress: string
   copyright: string
   updatedAt: Date
   _count: StoreSettingCountAggregateOutputType | null
+  _avg: StoreSettingAvgAggregateOutputType | null
+  _sum: StoreSettingSumAggregateOutputType | null
   _min: StoreSettingMinAggregateOutputType | null
   _max: StoreSettingMaxAggregateOutputType | null
 }
@@ -211,6 +259,8 @@ export type StoreSettingWhereInput = {
   allowLanguage?: Prisma.BoolFilter<"StoreSetting"> | boolean
   allowCurrency?: Prisma.BoolFilter<"StoreSetting"> | boolean
   logoText?: Prisma.StringFilter<"StoreSetting"> | string
+  currency?: Prisma.StringFilter<"StoreSetting"> | string
+  taxRate?: Prisma.FloatFilter<"StoreSetting"> | number
   footerAddress?: Prisma.StringFilter<"StoreSetting"> | string
   copyright?: Prisma.StringFilter<"StoreSetting"> | string
   updatedAt?: Prisma.DateTimeFilter<"StoreSetting"> | Date | string
@@ -223,6 +273,8 @@ export type StoreSettingOrderByWithRelationInput = {
   allowLanguage?: Prisma.SortOrder
   allowCurrency?: Prisma.SortOrder
   logoText?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   footerAddress?: Prisma.SortOrder
   copyright?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -238,6 +290,8 @@ export type StoreSettingWhereUniqueInput = Prisma.AtLeast<{
   allowLanguage?: Prisma.BoolFilter<"StoreSetting"> | boolean
   allowCurrency?: Prisma.BoolFilter<"StoreSetting"> | boolean
   logoText?: Prisma.StringFilter<"StoreSetting"> | string
+  currency?: Prisma.StringFilter<"StoreSetting"> | string
+  taxRate?: Prisma.FloatFilter<"StoreSetting"> | number
   footerAddress?: Prisma.StringFilter<"StoreSetting"> | string
   copyright?: Prisma.StringFilter<"StoreSetting"> | string
   updatedAt?: Prisma.DateTimeFilter<"StoreSetting"> | Date | string
@@ -250,12 +304,16 @@ export type StoreSettingOrderByWithAggregationInput = {
   allowLanguage?: Prisma.SortOrder
   allowCurrency?: Prisma.SortOrder
   logoText?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   footerAddress?: Prisma.SortOrder
   copyright?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.StoreSettingCountOrderByAggregateInput
+  _avg?: Prisma.StoreSettingAvgOrderByAggregateInput
   _max?: Prisma.StoreSettingMaxOrderByAggregateInput
   _min?: Prisma.StoreSettingMinOrderByAggregateInput
+  _sum?: Prisma.StoreSettingSumOrderByAggregateInput
 }
 
 export type StoreSettingScalarWhereWithAggregatesInput = {
@@ -268,6 +326,8 @@ export type StoreSettingScalarWhereWithAggregatesInput = {
   allowLanguage?: Prisma.BoolWithAggregatesFilter<"StoreSetting"> | boolean
   allowCurrency?: Prisma.BoolWithAggregatesFilter<"StoreSetting"> | boolean
   logoText?: Prisma.StringWithAggregatesFilter<"StoreSetting"> | string
+  currency?: Prisma.StringWithAggregatesFilter<"StoreSetting"> | string
+  taxRate?: Prisma.FloatWithAggregatesFilter<"StoreSetting"> | number
   footerAddress?: Prisma.StringWithAggregatesFilter<"StoreSetting"> | string
   copyright?: Prisma.StringWithAggregatesFilter<"StoreSetting"> | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StoreSetting"> | Date | string
@@ -280,6 +340,8 @@ export type StoreSettingCreateInput = {
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: string
+  currency?: string
+  taxRate?: number
   footerAddress?: string
   copyright?: string
   updatedAt?: Date | string
@@ -292,6 +354,8 @@ export type StoreSettingUncheckedCreateInput = {
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: string
+  currency?: string
+  taxRate?: number
   footerAddress?: string
   copyright?: string
   updatedAt?: Date | string
@@ -304,6 +368,8 @@ export type StoreSettingUpdateInput = {
   allowLanguage?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowCurrency?: Prisma.BoolFieldUpdateOperationsInput | boolean
   logoText?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRate?: Prisma.FloatFieldUpdateOperationsInput | number
   footerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   copyright?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -316,6 +382,8 @@ export type StoreSettingUncheckedUpdateInput = {
   allowLanguage?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowCurrency?: Prisma.BoolFieldUpdateOperationsInput | boolean
   logoText?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRate?: Prisma.FloatFieldUpdateOperationsInput | number
   footerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   copyright?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -328,6 +396,8 @@ export type StoreSettingCreateManyInput = {
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: string
+  currency?: string
+  taxRate?: number
   footerAddress?: string
   copyright?: string
   updatedAt?: Date | string
@@ -340,6 +410,8 @@ export type StoreSettingUpdateManyMutationInput = {
   allowLanguage?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowCurrency?: Prisma.BoolFieldUpdateOperationsInput | boolean
   logoText?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRate?: Prisma.FloatFieldUpdateOperationsInput | number
   footerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   copyright?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -352,6 +424,8 @@ export type StoreSettingUncheckedUpdateManyInput = {
   allowLanguage?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowCurrency?: Prisma.BoolFieldUpdateOperationsInput | boolean
   logoText?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  taxRate?: Prisma.FloatFieldUpdateOperationsInput | number
   footerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   copyright?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,9 +438,15 @@ export type StoreSettingCountOrderByAggregateInput = {
   allowLanguage?: Prisma.SortOrder
   allowCurrency?: Prisma.SortOrder
   logoText?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   footerAddress?: Prisma.SortOrder
   copyright?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type StoreSettingAvgOrderByAggregateInput = {
+  taxRate?: Prisma.SortOrder
 }
 
 export type StoreSettingMaxOrderByAggregateInput = {
@@ -376,6 +456,8 @@ export type StoreSettingMaxOrderByAggregateInput = {
   allowLanguage?: Prisma.SortOrder
   allowCurrency?: Prisma.SortOrder
   logoText?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   footerAddress?: Prisma.SortOrder
   copyright?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -388,13 +470,23 @@ export type StoreSettingMinOrderByAggregateInput = {
   allowLanguage?: Prisma.SortOrder
   allowCurrency?: Prisma.SortOrder
   logoText?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
   footerAddress?: Prisma.SortOrder
   copyright?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type StoreSettingSumOrderByAggregateInput = {
+  taxRate?: Prisma.SortOrder
+}
+
+export type FloatFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 
@@ -406,6 +498,8 @@ export type StoreSettingSelect<ExtArgs extends runtime.Types.Extensions.Internal
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: boolean
+  currency?: boolean
+  taxRate?: boolean
   footerAddress?: boolean
   copyright?: boolean
   updatedAt?: boolean
@@ -418,6 +512,8 @@ export type StoreSettingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: boolean
+  currency?: boolean
+  taxRate?: boolean
   footerAddress?: boolean
   copyright?: boolean
   updatedAt?: boolean
@@ -430,6 +526,8 @@ export type StoreSettingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: boolean
+  currency?: boolean
+  taxRate?: boolean
   footerAddress?: boolean
   copyright?: boolean
   updatedAt?: boolean
@@ -442,12 +540,14 @@ export type StoreSettingSelectScalar = {
   allowLanguage?: boolean
   allowCurrency?: boolean
   logoText?: boolean
+  currency?: boolean
+  taxRate?: boolean
   footerAddress?: boolean
   copyright?: boolean
   updatedAt?: boolean
 }
 
-export type StoreSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "topBarEmail" | "topBarPhone" | "allowLanguage" | "allowCurrency" | "logoText" | "footerAddress" | "copyright" | "updatedAt", ExtArgs["result"]["storeSetting"]>
+export type StoreSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "topBarEmail" | "topBarPhone" | "allowLanguage" | "allowCurrency" | "logoText" | "currency" | "taxRate" | "footerAddress" | "copyright" | "updatedAt", ExtArgs["result"]["storeSetting"]>
 
 export type $StoreSettingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StoreSetting"
@@ -459,6 +559,8 @@ export type $StoreSettingPayload<ExtArgs extends runtime.Types.Extensions.Intern
     allowLanguage: boolean
     allowCurrency: boolean
     logoText: string
+    currency: string
+    taxRate: number
     footerAddress: string
     copyright: string
     updatedAt: Date
@@ -891,6 +993,8 @@ export interface StoreSettingFieldRefs {
   readonly allowLanguage: Prisma.FieldRef<"StoreSetting", 'Boolean'>
   readonly allowCurrency: Prisma.FieldRef<"StoreSetting", 'Boolean'>
   readonly logoText: Prisma.FieldRef<"StoreSetting", 'String'>
+  readonly currency: Prisma.FieldRef<"StoreSetting", 'String'>
+  readonly taxRate: Prisma.FieldRef<"StoreSetting", 'Float'>
   readonly footerAddress: Prisma.FieldRef<"StoreSetting", 'String'>
   readonly copyright: Prisma.FieldRef<"StoreSetting", 'String'>
   readonly updatedAt: Prisma.FieldRef<"StoreSetting", 'DateTime'>

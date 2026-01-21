@@ -167,3 +167,23 @@ export type Testimonial = Prisma.TestimonialModel
  * 
  */
 export type Faq = Prisma.FaqModel
+/**
+ * Model EmailTemplate
+ * 
+ */
+export type EmailTemplate = Prisma.EmailTemplateModel
+/**
+ * Model EmailLog
+ * 
+ */
+export type EmailLog = Prisma.EmailLogModel
+/**
+ * Model StockMovement
+ * 
+ */
+export type StockMovement = Prisma.StockMovementModel
+/**
+ * Model StockAlert
+ * 
+ */
+export type StockAlert = Prisma.StockAlertModel

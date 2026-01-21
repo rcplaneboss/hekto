@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { requireAdminAuth } from '@/lib/api-auth-utils'
+import { emailService } from '@/lib/email-service'
 
 export async function POST(req: NextRequest) {
   // Check authorization
@@ -20,6 +21,14 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.order.update({ where: { id }, data: { status: status as any } })
+  
+  // Send email notification for status updates
+  try {
+    await emailService.sendOrderStatusUpdate(id, status)
+  } catch (error) {
+    console.error('Failed to send status update email:', error)
+  }
+  
   try { revalidatePath('/admin/orders') } catch (e) {}
 
   return NextResponse.json({ success: true })

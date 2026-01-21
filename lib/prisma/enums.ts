@@ -34,3 +34,38 @@ export const OrderStatus = {
 } as const
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const EmailType = {
+  ORDER_CONFIRMATION: 'ORDER_CONFIRMATION',
+  ORDER_STATUS_UPDATE: 'ORDER_STATUS_UPDATE',
+  SHIPPING_NOTIFICATION: 'SHIPPING_NOTIFICATION',
+  DELIVERY_CONFIRMATION: 'DELIVERY_CONFIRMATION',
+  MARKETING: 'MARKETING',
+  PASSWORD_RESET: 'PASSWORD_RESET'
+} as const
+
+export type EmailType = (typeof EmailType)[keyof typeof EmailType]
+
+
+export const EmailStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  FAILED: 'FAILED',
+  BOUNCED: 'BOUNCED'
+} as const
+
+export type EmailStatus = (typeof EmailStatus)[keyof typeof EmailStatus]
+
+
+export const StockMovementType = {
+  SALE: 'SALE',
+  RESTOCK: 'RESTOCK',
+  ADJUSTMENT: 'ADJUSTMENT',
+  RETURN: 'RETURN',
+  DAMAGE: 'DAMAGE',
+  TRANSFER: 'TRANSFER'
+} as const
+
+export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType]

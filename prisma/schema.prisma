@@ -24,7 +24,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
   reviews       Review[]
-
+  
+  // Email preferences
+  emailNotifications Boolean @default(true)
+  marketingEmails    Boolean @default(true)
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   cart      Cart?
@@ -70,18 +74,15 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// --- GLOBAL SETTINGS ---
-// This stores things like the store name, contact email, and social links
-// Usually, you only have one row in this table.
 // --- GLOBAL STORE SETTINGS ---
 model StoreSetting {
   id String @id @default("global")
 
-  // Header / Top Bar (From your screenshot)
+  // Header / Top Bar
   topBarEmail   String  @default("mhhasanul@gmail.com")
   topBarPhone   String  @default("(12345)67890")
-  allowLanguage Boolean @default(true) // For the English dropdown
-  allowCurrency Boolean @default(true) // For the USD dropdown
+  allowLanguage Boolean @default(true)
+  allowCurrency Boolean @default(true)
 
   // Brand
   logoText String @default("Hekto")
@@ -90,7 +91,7 @@ model StoreSetting {
   currency String @default("NGN")
   taxRate Float @default(7.5)
 
-  // Footer General (From your screenshot)
+  // Footer General
   footerAddress String @default("17 Princess Road, London, Greater London NW1 8JR, UK")
   copyright     String @default("©Webecy - All Rights Reserved")
 
@@ -98,31 +99,29 @@ model StoreSetting {
 }
 
 // --- NAVIGATION & FOOTER LINKS ---
-// Use this to manage the "Categories", "Customer Care", and "Pages" columns
 model LinkGroup {
   id      String      @id @default(cuid())
-  title   String // e.g., "Categories", "Customer Care"
+  title   String
   section LinkSection @default(FOOTER)
   links   NavLink[]
-  order   Int         @default(0) // To keep columns in order
+  order   Int         @default(0)
 }
 
 model NavLink {
   id      String    @id @default(cuid())
-  label   String // e.g., "Laptops & Computers"
-  url     String // e.g., "/category/laptops"
+  label   String
+  url     String
   groupId String
   group   LinkGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   order   Int       @default(0)
 }
 
 enum LinkSection {
-  HEADER_MAIN // For Home, Pages, Products, Blog, Shop, Contact
+  HEADER_MAIN
   FOOTER
 }
 
 // --- CONTACT FORM SUBMISSIONS ---
-// For the "Contact Us" page in the Figma file
 model ContactSubmission {
   id        String   @id @default(cuid())
   name      String
@@ -134,44 +133,38 @@ model ContactSubmission {
 }
 
 // --- STATIC PAGES / FAQ ---
-// To manage the content of pages like "About Us" or "FAQ" without hardcoding
 model PageContent {
   id        String   @id @default(cuid())
-  slug      String   @unique // e.g., "about-us", "faq"
+  slug      String   @unique
   title     String
-  content   String   @db.Text // Use JSON or Markdown here
+  content   String   @db.Text
   isActive  Boolean  @default(true)
   updatedAt DateTime @updatedAt
 }
 
 // --- NEWSLETTER ---
-// Hekto usually has a "Subscribe to Newsletter" section in the footer
 model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
 }
 
-// --- HERO BANNER (Homepage Slider) ---
+// --- HERO BANNER ---
 model HeroBanner {
   id String @id @default(cuid())
 
-  // Marketing Content
-  subTitle    String // e.g., "Best Furniture For Your Castle..."
-  mainTitle   String // e.g., "New Furniture Collection Trends in 2024"
+  subTitle    String
+  mainTitle   String
   description String @db.Text
 
-  // Call to Action (The Button)
   buttonText String @default("Shop Now")
   buttonLink String @default("/shop")
 
-  // Imagery
-  imageUrl   String // The main product image (e.g., the Pink Chair)
-  offTagText String? // e.g., "50% off" (The circular tag in Hekto)
+  imageUrl   String
+  offTagText String?
 
-  // Configuration
   isActive  Boolean  @default(true)
-  order     Int      @default(0) // To control which slide comes first
+  order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -183,23 +176,25 @@ model Product {
   price              Float
   discountPercentage Float? @default(0)
 
-  // Design separation for the Hekto tabs
   imageUrl        String
-  description     String? @db.Text // Short summary next to buy button
-  longDescription String? @db.Text // Content for "Description" tab
-  additionalInfo  String? @db.Text // Content for "Additional Info" tab
+  description     String? @db.Text
+  longDescription String? @db.Text
+  additionalInfo  String? @db.Text
 
-  // NEW: Technical Specifications
-  // Using Json allows: { "Material": "Wood", "Style": "Modern" }
   specs Json? @default("{}")
+  
+  // Inventory fields
+  stock           Int      @default(0)
+  lowStockThreshold Int    @default(5)
+  trackInventory  Boolean  @default(true)
 
-  // Relations
   images ProductImage[]
+  stockMovements StockMovement[]
+  stockAlerts StockAlert[]
 
   tags     String[]
   colors   String[]
   size     String[] @default(["XL"])
-  stock    Int      @default(0)
   isActive Boolean  @default(true)
 
   createdAt DateTime @default(now())
@@ -217,6 +212,7 @@ model Product {
 
   @@index([tags])
   @@index([categoryId])
+  @@index([stock])
 }
 
 model ProductImage {
@@ -231,7 +227,7 @@ model ProductImage {
 
 model Review {
   id      String  @id @default(cuid())
-  rating  Int // 1 to 5
+  rating  Int
   comment String? @db.Text
 
   userId String
@@ -247,23 +243,21 @@ model Service {
   id          String   @id @default(cuid())
   title       String
   description String
-  iconUrl     String? // For uploaded images
-  iconName    String? // For Lucide icon names like "Truck", "Headphones"
-  order       Int      @default(0) // To control display order
+  iconUrl     String?
+  iconName    String?
+  order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model PromoBanner {
   id       String   @id @default(cuid())
-  title    String // e.g., "Unique Features Of Latest & Trending Products"
-  features String[] // ["All frames constructed...", "Reinforced with...", etc.]
+  title    String
+  features String[]
 
-  // Relation to the product for the "Add to Cart" functionality and price
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
-  // Optional: Allow custom image if you don't want to use the product's default image
   customImage String?
 
   isActive  Boolean  @default(true)
@@ -273,11 +267,11 @@ model PromoBanner {
 
 model TrendingPromo {
   id       String  @id @default(cuid())
-  title    String // e.g., "23% off in all products"
-  linkText String // e.g., "Shop Now" or "View Collection"
+  title    String
+  linkText String
   linkUrl  String
   imageUrl String
-  bgColor  String // e.g., "#FFF6FB" (Pinkish) or "#EEEFFB" (Blueish)
+  bgColor  String
   isActive Boolean @default(true)
 }
 
@@ -297,17 +291,15 @@ model Category {
 
 model DiscountItem {
   id          String   @id @default(cuid())
-  title       String // e.g., "20% Discount Of All Products"
-  subtitle    String // e.g., "Eams Sofa Compact"
+  title       String
+  subtitle    String
   description String   @db.Text
-  features    String[] // Array of bullet points: ["Material expose like metals", "Simple neutral colours"]
+  features    String[]
   buttonText  String   @default("Shop Now")
 
-  // Relations
   categoryId String   @unique
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  // Link to a specific product to show its image
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
@@ -340,12 +332,10 @@ model BlogPost {
   mainImage   String
   publishedAt DateTime @default(now())
   
-  // Updated/New Fields for UI/UX
-  category    String   @default("General") // To support "Categories" widget
-  tags        String[] @default([])        // To support "Tags" cloud widget
-  isFeatured  Boolean  @default(false)     // To highlight specific posts
+  category    String   @default("General")
+  tags        String[] @default([])
+  isFeatured  Boolean  @default(false)
   
-  // Optional: Add video link if you want to support video blogs
   videoUrl    String?
 
   createdAt   DateTime @default(now())
@@ -356,13 +346,16 @@ model BlogPost {
 }
 
 model Cart {
-  id     String     @id @default(cuid())
-  userId String?    @unique // Optional: We might have guest carts later
-  user   User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items  CartItem[]
+  id        String     @id @default(cuid())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId String?    @unique // For guest carts
+  items     CartItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([sessionId])
 }
 
 model CartItem {
@@ -374,8 +367,8 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id])
 
   quantity Int     @default(1)
-  color    String? // Stores "Brown", "Red" etc.
-  size     String? // Stores "XL", "M" etc.
+  color    String?
+  size     String?
 
   @@unique([cartId, productId, color, size])
 }
@@ -399,19 +392,17 @@ model WishlistItem {
 
   createdAt DateTime @default(now())
 
-  @@unique([wishlistId, productId]) // Prevents duplicate items in wishlist
+  @@unique([wishlistId, productId])
 }
 
 model Order {
   id          String @id @default(cuid())
   orderNumber Int    @unique @default(autoincrement())
 
-  // Mandatory User link
-  userId        String
-  user          User   @relation(fields: [userId], references: [id])
-  customerEmail String // Captured from the contact form section
+  userId        String?
+  user          User?   @relation(fields: [userId], references: [id])
+  customerEmail String
 
-  // Shipping Address Fields (Match the Hekto Demo screenshot)
   firstName  String
   lastName   String
   address    String
@@ -421,16 +412,23 @@ model Order {
   postalCode String
   phone      String?
 
-  // Financial Summary
   subtotal      Float
   totalAmount   Float
   status        OrderStatus @default(PENDING)
   paymentStatus String      @default("UNPAID")
+  
+  trackingNumber String?
+  estimatedDelivery DateTime?
 
   items OrderItem[]
+  emailLogs EmailLog[]
+  stockMovements StockMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([customerEmail])
+  @@index([status])
 }
 
 model OrderItem {
@@ -442,17 +440,17 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 
   quantity Int
-  price    Float // Snapshot of the price at the moment of purchase
+  price    Float
   color    String?
   size     String?
 }
 
 model Testimonial {
   id        String   @id @default(cuid())
-  name      String   // e.g., "Selina Gomez"
-  role      String   // e.g., "Ceo At Webecy Digital"
+  name      String
+  role      String
   content   String   @db.Text
-  imageUrl  String   // Client avatar
+  imageUrl  String
   isActive  Boolean  @default(true)
   order     Int      @default(0)
   createdAt DateTime @default(now())
@@ -466,10 +464,119 @@ enum OrderStatus {
   CANCELLED
 }
 
-
 model Faq {
   id        String   @id @default(cuid())
   question  String
   answer    String   @db.Text
   createdAt DateTime @default(now())
 }
+
+// --- EMAIL SYSTEM ---
+
+enum EmailType {
+  ORDER_CONFIRMATION
+  ORDER_STATUS_UPDATE
+  SHIPPING_NOTIFICATION
+  DELIVERY_CONFIRMATION
+  MARKETING
+  PASSWORD_RESET
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+}
+
+model EmailTemplate {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  type        EmailType
+  subject     String
+  htmlContent String    @db.Text
+  textContent String?   @db.Text
+  variables   String[]
+  isActive    Boolean   @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  emailLogs EmailLog[]
+  
+  @@index([type])
+}
+
+model EmailLog {
+  id         String      @id @default(cuid())
+  templateId String?
+  template   EmailTemplate? @relation(fields: [templateId], references: [id])
+  
+  orderId    String?
+  order      Order?      @relation(fields: [orderId], references: [id])
+  
+  recipient  String
+  subject    String
+  content    String      @db.Text
+  status     EmailStatus @default(PENDING)
+  
+  sentAt     DateTime?
+  deliveredAt DateTime?
+  errorMessage String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([recipient])
+  @@index([status])
+  @@index([sentAt])
+}
+
+// --- INVENTORY SYSTEM ---
+
+enum StockMovementType {
+  SALE
+  RESTOCK
+  ADJUSTMENT
+  RETURN
+  DAMAGE
+  TRANSFER
+}
+
+model StockMovement {
+  id          String            @id @default(cuid())
+  productId   String
+  product     Product           @relation(fields: [productId], references: [id])
+  
+  orderId     String?
+  order       Order?            @relation(fields: [orderId], references: [id])
+  
+  type        StockMovementType
+  quantity    Int
+  previousStock Int
+  newStock    Int
+  
+  reason      String?
+  reference   String?
+  
+  createdBy   String?
+  createdAt   DateTime          @default(now())
+  
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model StockAlert {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  
+  alertType   String
+  threshold   Int
+  currentStock Int
+  
+  isResolved  Boolean  @default(false)
+  resolvedAt  DateTime?
+  
+  

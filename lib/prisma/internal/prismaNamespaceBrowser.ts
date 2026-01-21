@@ -80,7 +80,11 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Testimonial: 'Testimonial',
-  Faq: 'Faq'
+  Faq: 'Faq',
+  EmailTemplate: 'EmailTemplate',
+  EmailLog: 'EmailLog',
+  StockMovement: 'StockMovement',
+  StockAlert: 'StockAlert'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -106,6 +110,8 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   image: 'image',
   role: 'role',
+  emailNotifications: 'emailNotifications',
+  marketingEmails: 'marketingEmails',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -159,6 +165,8 @@ export const StoreSettingScalarFieldEnum = {
   allowLanguage: 'allowLanguage',
   allowCurrency: 'allowCurrency',
   logoText: 'logoText',
+  currency: 'currency',
+  taxRate: 'taxRate',
   footerAddress: 'footerAddress',
   copyright: 'copyright',
   updatedAt: 'updatedAt'
@@ -251,10 +259,12 @@ export const ProductScalarFieldEnum = {
   longDescription: 'longDescription',
   additionalInfo: 'additionalInfo',
   specs: 'specs',
+  stock: 'stock',
+  lowStockThreshold: 'lowStockThreshold',
+  trackInventory: 'trackInventory',
   tags: 'tags',
   colors: 'colors',
   size: 'size',
-  stock: 'stock',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -456,6 +466,8 @@ export const OrderScalarFieldEnum = {
   totalAmount: 'totalAmount',
   status: 'status',
   paymentStatus: 'paymentStatus',
+  trackingNumber: 'trackingNumber',
+  estimatedDelivery: 'estimatedDelivery',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -498,6 +510,70 @@ export const FaqScalarFieldEnum = {
 } as const
 
 export type FaqScalarFieldEnum = (typeof FaqScalarFieldEnum)[keyof typeof FaqScalarFieldEnum]
+
+
+export const EmailTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  subject: 'subject',
+  htmlContent: 'htmlContent',
+  textContent: 'textContent',
+  variables: 'variables',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmailTemplateScalarFieldEnum = (typeof EmailTemplateScalarFieldEnum)[keyof typeof EmailTemplateScalarFieldEnum]
+
+
+export const EmailLogScalarFieldEnum = {
+  id: 'id',
+  templateId: 'templateId',
+  orderId: 'orderId',
+  recipient: 'recipient',
+  subject: 'subject',
+  content: 'content',
+  status: 'status',
+  sentAt: 'sentAt',
+  deliveredAt: 'deliveredAt',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailLogScalarFieldEnum = (typeof EmailLogScalarFieldEnum)[keyof typeof EmailLogScalarFieldEnum]
+
+
+export const StockMovementScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  orderId: 'orderId',
+  type: 'type',
+  quantity: 'quantity',
+  previousStock: 'previousStock',
+  newStock: 'newStock',
+  reason: 'reason',
+  reference: 'reference',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type StockMovementScalarFieldEnum = (typeof StockMovementScalarFieldEnum)[keyof typeof StockMovementScalarFieldEnum]
+
+
+export const StockAlertScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  alertType: 'alertType',
+  threshold: 'threshold',
+  currentStock: 'currentStock',
+  isResolved: 'isResolved',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type StockAlertScalarFieldEnum = (typeof StockAlertScalarFieldEnum)[keyof typeof StockAlertScalarFieldEnum]
 
 
 export const SortOrder = {

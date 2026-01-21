@@ -1,12 +1,68 @@
-import { prisma } from '@/lib/db';
-import { EmailType } from '../lib/prisma/client';
+"use server";
 
+import { prisma } from "@/lib/db";
+import { EmailType } from "@/lib/prisma/client";
+import { revalidatePath } from "next/cache";
 
+export async function createEmailTemplate(data: {
+  name: string;
+  type: EmailType;
+  subject: string;
+  htmlContent: string;
+  textContent?: string;
+  variables: string[];
+}) {
+  try {
+    await prisma.emailTemplate.create({
+      data: {
+        name: data.name,
+        type: data.type,
+        subject: data.subject,
+        htmlContent: data.htmlContent,
+        textContent: data.textContent,
+        variables: data.variables,
+      },
+    });
 
-async function main() {
-  console.log('Seeding email templates...');
-  
-  // Seed Email Templates
+    revalidatePath('/admin/email-templates');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to create email template:', error);
+    return { success: false, error: 'Failed to create email template' };
+  }
+}
+
+export async function updateEmailTemplate(id: string, data: {
+  name: string;
+  subject: string;
+  htmlContent: string;
+  textContent?: string;
+  variables: string[];
+  isActive: boolean;
+}) {
+  try {
+    await prisma.emailTemplate.update({
+      where: { id },
+      data: {
+        name: data.name,
+        subject: data.subject,
+        htmlContent: data.htmlContent,
+        textContent: data.textContent,
+        variables: data.variables,
+        isActive: data.isActive,
+      },
+    });
+
+    revalidatePath('/admin/email-templates');
+    revalidatePath(`/admin/email-templates/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update email template:', error);
+    return { success: false, error: 'Failed to update email template' };
+  }
+}
+
+export async function seedEmailTemplates() {
   const templates = [
     {
       name: "Order Confirmation",
@@ -40,6 +96,10 @@ async function main() {
             </div>
             
             <p>We'll send you another email when your order ships with tracking information.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://hekto.com/account/orders" style="background: #FB2E86; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Track Your Order</a>
+            </div>
           </div>
           
           <div style="background: #f8f9fa; padding: 20px; text-align: center; color: #666;">
@@ -75,6 +135,10 @@ async function main() {
                 <strong>Tracking Number:</strong> {{trackingNumber}}
               </div>
             </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://hekto.com/account/orders" style="background: #FB2E86; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">View Order Details</a>
+            </div>
           </div>
           
           <div style="background: #f8f9fa; padding: 20px; text-align: center; color: #666;">
@@ -87,22 +151,17 @@ async function main() {
     },
   ];
 
-  for (const template of templates) {
-    await prisma.emailTemplate.upsert({
-      where: { name: template.name },
-      update: template,
-      create: template,
-    });
+  try {
+    for (const template of templates) {
+      await prisma.emailTemplate.upsert({
+        where: { name: template.name },
+        update: template,
+        create: template,
+      });
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to seed email templates:', error);
+    return { success: false };
   }
-
-  console.log('✅ Email templates seeded successfully');
 }
-
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
