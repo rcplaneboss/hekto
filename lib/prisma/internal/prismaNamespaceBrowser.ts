@@ -410,6 +410,7 @@ export type BlogPostScalarFieldEnum = (typeof BlogPostScalarFieldEnum)[keyof typ
 export const CartScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  sessionId: 'sessionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

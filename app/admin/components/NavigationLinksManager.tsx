@@ -32,6 +32,7 @@ interface NavigationLinksManagerProps {
   groups: LinkGroup[];
 }
 
+export default function NavigationLinksManager({ groups }: NavigationLinksManagerProps) {
   // Local state for forms and drag-and-drop
   const [showGroupForm, setShowGroupForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<LinkGroup | null>(null);

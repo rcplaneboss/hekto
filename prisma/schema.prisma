@@ -579,4 +579,8 @@ model StockAlert {
   isResolved  Boolean  @default(false)
   resolvedAt  DateTime?
   
+  createdAt   DateTime @default(now())
   
+  @@index([productId])
+  @@index([isResolved])
+}

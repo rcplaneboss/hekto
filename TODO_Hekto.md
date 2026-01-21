@@ -80,22 +80,23 @@
 ## 👤 4. Guest Checkout Implementation
 
 ### Database Schema Updates
-- [ ] Add `GuestOrder` model or modify `Order` to support guests
-- [ ] Add `GuestCart` session management
-- [ ] Create guest order tracking system
+- [x] Add `sessionId` to Cart model for guest sessions
+- [x] Modify `Order` to support guests (userId optional)
+- [x] Create guest order tracking system
 
 ### Implementation Tasks
-- [ ] Modify cart system to support guest sessions
-- [ ] Create guest checkout flow
-- [ ] Add guest order confirmation via email
-- [ ] Implement guest order tracking with email/phone
+- [x] Modify cart system to support guest sessions
+- [x] Create guest checkout flow
+- [x] Add guest order confirmation via email
+- [x] Create guest cart context for session management
 - [ ] Add option to create account after guest order
+- [ ] Implement guest order tracking with email/phone
 
 ### Files to Create/Modify
-- [ ] `app/checkout/guest/page.tsx`
-- [ ] `app/track-order/page.tsx`
-- [ ] `context/GuestCartContext.tsx`
-- [ ] Modify existing cart and order logic
+- [x] `app/checkout/guest/page.tsx`
+- [x] `app/api/checkout/guest/route.ts`
+- [x] `context/GuestCartContext.tsx`
+- [x] Modify existing cart and order logic
 
 ---
 
