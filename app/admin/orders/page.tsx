@@ -12,7 +12,15 @@ export default async function OrdersAdminPage(){
           <h2 className="text-2xl font-bold font-josefin dark:text-white">Orders</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-lato">Recent orders and statuses</p>
         </div>
-        <Link href="/admin" className="text-sm text-slate-600">Back to dashboard</Link>
+        <div className="flex gap-3">
+          <Link 
+            href="/admin/orders/new" 
+            className="bg-[#FB2E86] text-white px-4 py-2 rounded-lg font-josefin hover:bg-pink-600 transition"
+          >
+            New Order
+          </Link>
+          <Link href="/admin" className="text-sm text-slate-600">Back to dashboard</Link>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border dark:border-slate-800">
