@@ -19,6 +19,7 @@
     "@prisma/extension-accelerate": "^3.0.1",
     "@supabase/supabase-js": "^2.89.0",
     "@types/nodemailer": "^7.0.5",
+    "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
     "dotenv": "^17.2.3",
     "fuse.js": "^7.1.0",
