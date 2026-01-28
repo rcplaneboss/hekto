@@ -419,6 +419,7 @@ model Order {
   
   trackingNumber String?
   estimatedDelivery DateTime?
+  createdByAdmin String? // Admin user ID who created this order
 
   items OrderItem[]
   emailLogs EmailLog[]

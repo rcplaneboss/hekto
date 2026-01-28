@@ -3358,6 +3358,7 @@ export const OrderScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   trackingNumber: 'trackingNumber',
   estimatedDelivery: 'estimatedDelivery',
+  createdByAdmin: 'createdByAdmin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -32,6 +32,7 @@ export default async function OrdersAdminPage(){
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Customer</th>
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Items</th>
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Total</th>
+                <th className="px-6 py-4 text-xs text-slate-400 uppercase">Type</th>
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Status</th>
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Actions</th>
               </tr>
@@ -48,7 +49,16 @@ export default async function OrdersAdminPage(){
                     <div className="text-xs text-slate-400 dark:text-slate-400 font-lato">{o.customerEmail}</div>
                   </td>
                   <td className="px-6 py-4">{o.items.length}</td>
-                  <td className="px-6 py-4 font-black text-lg text-[#151875] dark:text-white">₦{o.totalAmount.toFixed(2)}</td>
+                  <td className="px-6 py-4">₦{o.totalAmount.toFixed(2)}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      o.createdByAdmin 
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                    }`}>
+                      {o.createdByAdmin ? 'Admin' : 'Customer'}
+                    </span>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <span className={`px-3 py-1 rounded-full text-xs ${o.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>

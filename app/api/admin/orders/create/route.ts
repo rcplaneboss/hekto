@@ -3,16 +3,32 @@ import { prisma } from "@/lib/db";
 import { requireAdminAuth } from "@/lib/api-auth-utils";
 import { emailService } from "@/lib/email-service";
 import { StockMovementType } from "@/lib/prisma/client";
+import { auth } from "@/auth";
 
 export async function POST(req: NextRequest) {
   const authError = await requireAdminAuth(req);
   if (authError) return authError;
+
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "User session required" }, { status: 401 });
+  }
 
   try {
     const { items } = await req.json();
 
     if (!items.length) {
       return NextResponse.json({ error: "No items provided" }, { status: 400 });
+    }
+
+    // Get admin user details
+    const adminUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, name: true, email: true }
+    });
+
+    if (!adminUser) {
+      return NextResponse.json({ error: "Admin user not found" }, { status: 404 });
     }
 
     // Check stock availability
@@ -42,9 +58,9 @@ export async function POST(req: NextRequest) {
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
-          customerEmail: "store@hekto.com",
-          firstName: "Store",
-          lastName: "Order",
+          customerEmail: adminUser.email,
+          firstName: adminUser.name?.split(' ')[0] || 'Admin',
+          lastName: adminUser.name?.split(' ').slice(1).join(' ') || 'User',
           address: "Store Location",
           apartment: "",
           city: "Store City",
@@ -53,6 +69,7 @@ export async function POST(req: NextRequest) {
           subtotal,
           totalAmount: subtotal,
           status: "DELIVERED", // Store orders are immediately delivered
+          createdByAdmin: adminUser.id,
           items: {
             create: items.map((item: any) => ({
               productId: item.productId,

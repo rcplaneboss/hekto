@@ -57,6 +57,7 @@ export type OrderMinAggregateOutputType = {
   paymentStatus: string | null
   trackingNumber: string | null
   estimatedDelivery: Date | null
+  createdByAdmin: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +81,7 @@ export type OrderMaxAggregateOutputType = {
   paymentStatus: string | null
   trackingNumber: string | null
   estimatedDelivery: Date | null
+  createdByAdmin: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -103,6 +105,7 @@ export type OrderCountAggregateOutputType = {
   paymentStatus: number
   trackingNumber: number
   estimatedDelivery: number
+  createdByAdmin: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -140,6 +143,7 @@ export type OrderMinAggregateInputType = {
   paymentStatus?: true
   trackingNumber?: true
   estimatedDelivery?: true
+  createdByAdmin?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -163,6 +167,7 @@ export type OrderMaxAggregateInputType = {
   paymentStatus?: true
   trackingNumber?: true
   estimatedDelivery?: true
+  createdByAdmin?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -186,6 +191,7 @@ export type OrderCountAggregateInputType = {
   paymentStatus?: true
   trackingNumber?: true
   estimatedDelivery?: true
+  createdByAdmin?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -296,6 +302,7 @@ export type OrderGroupByOutputType = {
   paymentStatus: string
   trackingNumber: string | null
   estimatedDelivery: Date | null
+  createdByAdmin: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrderCountAggregateOutputType | null
@@ -342,6 +349,7 @@ export type OrderWhereInput = {
   paymentStatus?: Prisma.StringFilter<"Order"> | string
   trackingNumber?: Prisma.StringNullableFilter<"Order"> | string | null
   estimatedDelivery?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  createdByAdmin?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -369,6 +377,7 @@ export type OrderOrderByWithRelationInput = {
   paymentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   estimatedDelivery?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdByAdmin?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -399,6 +408,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   paymentStatus?: Prisma.StringFilter<"Order"> | string
   trackingNumber?: Prisma.StringNullableFilter<"Order"> | string | null
   estimatedDelivery?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  createdByAdmin?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -426,6 +436,7 @@ export type OrderOrderByWithAggregationInput = {
   paymentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   estimatedDelivery?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdByAdmin?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderCountOrderByAggregateInput
@@ -457,6 +468,7 @@ export type OrderScalarWhereWithAggregatesInput = {
   paymentStatus?: Prisma.StringWithAggregatesFilter<"Order"> | string
   trackingNumber?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   estimatedDelivery?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+  createdByAdmin?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
 }
@@ -479,6 +491,7 @@ export type OrderCreateInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -506,6 +519,7 @@ export type OrderUncheckedCreateInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -530,6 +544,7 @@ export type OrderUpdateInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutOrdersNestedInput
@@ -557,6 +572,7 @@ export type OrderUncheckedUpdateInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -583,6 +599,7 @@ export type OrderCreateManyInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -604,6 +621,7 @@ export type OrderUpdateManyMutationInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -627,6 +645,7 @@ export type OrderUncheckedUpdateManyInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -660,6 +679,7 @@ export type OrderCountOrderByAggregateInput = {
   paymentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
   estimatedDelivery?: Prisma.SortOrder
+  createdByAdmin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -689,6 +709,7 @@ export type OrderMaxOrderByAggregateInput = {
   paymentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
   estimatedDelivery?: Prisma.SortOrder
+  createdByAdmin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -712,6 +733,7 @@ export type OrderMinOrderByAggregateInput = {
   paymentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
   estimatedDelivery?: Prisma.SortOrder
+  createdByAdmin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -842,6 +864,7 @@ export type OrderCreateWithoutUserInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -867,6 +890,7 @@ export type OrderUncheckedCreateWithoutUserInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -922,6 +946,7 @@ export type OrderScalarWhereInput = {
   paymentStatus?: Prisma.StringFilter<"Order"> | string
   trackingNumber?: Prisma.StringNullableFilter<"Order"> | string | null
   estimatedDelivery?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  createdByAdmin?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
 }
@@ -944,6 +969,7 @@ export type OrderCreateWithoutItemsInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -970,6 +996,7 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   emailLogs?: Prisma.EmailLogUncheckedCreateNestedManyWithoutOrderInput
@@ -1009,6 +1036,7 @@ export type OrderUpdateWithoutItemsInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutOrdersNestedInput
@@ -1035,6 +1063,7 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailLogs?: Prisma.EmailLogUncheckedUpdateManyWithoutOrderNestedInput
@@ -1059,6 +1088,7 @@ export type OrderCreateWithoutEmailLogsInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -1085,6 +1115,7 @@ export type OrderUncheckedCreateWithoutEmailLogsInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -1124,6 +1155,7 @@ export type OrderUpdateWithoutEmailLogsInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutOrdersNestedInput
@@ -1150,6 +1182,7 @@ export type OrderUncheckedUpdateWithoutEmailLogsInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -1174,6 +1207,7 @@ export type OrderCreateWithoutStockMovementsInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -1200,6 +1234,7 @@ export type OrderUncheckedCreateWithoutStockMovementsInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -1239,6 +1274,7 @@ export type OrderUpdateWithoutStockMovementsInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutOrdersNestedInput
@@ -1265,6 +1301,7 @@ export type OrderUncheckedUpdateWithoutStockMovementsInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -1289,6 +1326,7 @@ export type OrderCreateManyUserInput = {
   paymentStatus?: string
   trackingNumber?: string | null
   estimatedDelivery?: Date | string | null
+  createdByAdmin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1310,6 +1348,7 @@ export type OrderUpdateWithoutUserInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -1335,6 +1374,7 @@ export type OrderUncheckedUpdateWithoutUserInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -1360,6 +1400,7 @@ export type OrderUncheckedUpdateManyWithoutUserInput = {
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1432,6 +1473,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   paymentStatus?: boolean
   trackingNumber?: boolean
   estimatedDelivery?: boolean
+  createdByAdmin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Order$userArgs<ExtArgs>
@@ -1460,6 +1502,7 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   paymentStatus?: boolean
   trackingNumber?: boolean
   estimatedDelivery?: boolean
+  createdByAdmin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Order$userArgs<ExtArgs>
@@ -1484,6 +1527,7 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   paymentStatus?: boolean
   trackingNumber?: boolean
   estimatedDelivery?: boolean
+  createdByAdmin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Order$userArgs<ExtArgs>
@@ -1508,11 +1552,12 @@ export type OrderSelectScalar = {
   paymentStatus?: boolean
   trackingNumber?: boolean
   estimatedDelivery?: boolean
+  createdByAdmin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "userId" | "customerEmail" | "firstName" | "lastName" | "address" | "apartment" | "city" | "country" | "postalCode" | "phone" | "subtotal" | "totalAmount" | "status" | "paymentStatus" | "trackingNumber" | "estimatedDelivery" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "userId" | "customerEmail" | "firstName" | "lastName" | "address" | "apartment" | "city" | "country" | "postalCode" | "phone" | "subtotal" | "totalAmount" | "status" | "paymentStatus" | "trackingNumber" | "estimatedDelivery" | "createdByAdmin" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Order$userArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
@@ -1554,6 +1599,7 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     paymentStatus: string
     trackingNumber: string | null
     estimatedDelivery: Date | null
+    createdByAdmin: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["order"]>
@@ -2001,6 +2047,7 @@ export interface OrderFieldRefs {
   readonly paymentStatus: Prisma.FieldRef<"Order", 'String'>
   readonly trackingNumber: Prisma.FieldRef<"Order", 'String'>
   readonly estimatedDelivery: Prisma.FieldRef<"Order", 'DateTime'>
+  readonly createdByAdmin: Prisma.FieldRef<"Order", 'String'>
   readonly createdAt: Prisma.FieldRef<"Order", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Order", 'DateTime'>
 }
