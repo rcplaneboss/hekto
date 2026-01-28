@@ -33,6 +33,7 @@ export default async function OrdersAdminPage(){
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Items</th>
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Total</th>
                 <th className="px-6 py-4 text-xs text-slate-400 uppercase">Status</th>
+                <th className="px-6 py-4 text-xs text-slate-400 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -47,9 +48,9 @@ export default async function OrdersAdminPage(){
                     <div className="text-xs text-slate-400 dark:text-slate-400 font-lato">{o.customerEmail}</div>
                   </td>
                   <td className="px-6 py-4">{o.items.length}</td>
-                  <td className="px-6 py-4 font-black text-lg text-[#151875] dark:text-white">${o.totalAmount.toFixed(2)}</td>
+                  <td className="px-6 py-4 font-black text-lg text-[#151875] dark:text-white">₦{o.totalAmount.toFixed(2)}</td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                       <span className={`px-3 py-1 rounded-full text-xs ${o.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                         {o.status}
                       </span>
@@ -63,6 +64,14 @@ export default async function OrdersAdminPage(){
                         />
                       )}
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/admin/orders/${o.id}`}
+                      className="text-[#FB2E86] hover:text-pink-600 text-sm font-medium"
+                    >
+                      View Details
+                    </Link>
                   </td>
                 </tr>
               ))}

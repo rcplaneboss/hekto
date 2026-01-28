@@ -10,6 +10,8 @@ import TopCategories from "@/components/TopCategories";
 import NewsletterSection from "@/components/NewsletterSection";
 import BrandLogos from "@/components/BrandLogos";
 import LatestBlog from "@/components/LatestBlog";
+import ProductCard from "@/components/ProductCard";
+import SectionHeading from "@/components/SectionHeading";
 
 export default async function Home() {
   const [allHomeProducts, activePromo, trendingPromos, topCategories, discountCategories, brands, latestBlogs] = await Promise.all([
@@ -21,7 +23,8 @@ export default async function Home() {
           { tags: { has: "bestseller" } },
           { tags: { has: "special" } },
           { tags: { has: "trending" } },
-          { tags: { has: "mini-list" } }
+          { tags: { has: "mini-list" } },
+          { tags: { has: "" } }
         ]
       }
     }),
@@ -52,7 +55,7 @@ export default async function Home() {
 
     await prisma.blogPost.findMany({
       orderBy: {
-        publishedAt: 'desc', 
+        publishedAt: 'desc',
       },
       take: 3,
     })
@@ -70,6 +73,15 @@ export default async function Home() {
   return (
     <main className="min-h-screen overflow-hidden overflow-x-hidden">
       <HeroSection />
+      <div className="pt-12">
+        <SectionHeading title="Our Products" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-24 max-md:px-0">
+          {allHomeProducts.map((product) => (
+            <ProductCard key={product.id} product={product} view='grid' />
+          ))}
+        </div>
+      </div>
+
       {featured && <FeaturedProducts products={featured} />}
       {latestSectionProducts && <LatestProducts products={latestSectionProducts} />}
       <HektoOffer />

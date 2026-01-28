@@ -12,6 +12,7 @@ interface Product {
   price: number;
   stock: number;
   imageUrl: string;
+  colors: string[];
 }
 
 interface OrderItem {
@@ -19,6 +20,7 @@ interface OrderItem {
   product: Product;
   quantity: number;
   price: number;
+  color?: string;
 }
 
 export default function NewOrderPage() {
@@ -47,12 +49,14 @@ export default function NewOrderPage() {
     product.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const addProduct = (product: Product) => {
-    const existingItem = orderItems.find(item => item.productId === product.id);
+  const addProduct = (product: Product, color?: string) => {
+    const existingItem = orderItems.find(item => 
+      item.productId === product.id && item.color === color
+    );
     
     if (existingItem) {
       setOrderItems(orderItems.map(item =>
-        item.productId === product.id
+        item.productId === product.id && item.color === color
           ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
@@ -62,25 +66,28 @@ export default function NewOrderPage() {
         product,
         quantity: 1,
         price: product.price,
+        color,
       }]);
     }
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, color: string | undefined, quantity: number) => {
     if (quantity <= 0) {
-      removeProduct(productId);
+      removeProduct(productId, color);
       return;
     }
     
     setOrderItems(orderItems.map(item =>
-      item.productId === productId
+      item.productId === productId && item.color === color
         ? { ...item, quantity }
         : item
     ));
   };
 
-  const removeProduct = (productId: string) => {
-    setOrderItems(orderItems.filter(item => item.productId !== productId));
+  const removeProduct = (productId: string, color?: string) => {
+    setOrderItems(orderItems.filter(item => 
+      !(item.productId === productId && item.color === color)
+    ));
   };
 
   const calculateTotal = () => {
@@ -105,6 +112,7 @@ export default function NewOrderPage() {
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
+            color: item.color,
           })),
         }),
       });
@@ -160,19 +168,37 @@ export default function NewOrderPage() {
           
           <div className="max-h-96 overflow-y-auto space-y-2">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
-                <div className="flex-1">
-                  <p className="font-medium text-[#151875] dark:text-white">{product.name}</p>
-                  <p className="text-sm text-slate-500">Code: {product.code} | Stock: {product.stock}</p>
-                  <p className="text-sm font-bold text-[#FB2E86]">₦{product.price.toFixed(2)}</p>
+              <div key={product.id} className="p-3 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex-1">
+                    <p className="font-medium text-[#151875] dark:text-white">{product.name}</p>
+                    <p className="text-sm text-slate-500">Code: {product.code} | Stock: {product.stock}</p>
+                    <p className="text-sm font-bold text-[#FB2E86]">₦{product.price.toFixed(2)}</p>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => addProduct(product)}
-                  className="p-2 bg-[#FB2E86] text-white rounded-lg hover:bg-pink-600"
-                >
-                  <Plus size={16} />
-                </button>
+                
+                {product.colors && product.colors.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {product.colors.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => addProduct(product, color)}
+                        className="w-8 h-8 rounded-full border-2 border-slate-300 hover:border-[#FB2E86] transition-colors"
+                        style={{ backgroundColor: color.toLowerCase() }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => addProduct(product)}
+                    className="mt-2 p-2 bg-[#FB2E86] text-white rounded-lg hover:bg-pink-600"
+                  >
+                    <Plus size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -189,10 +215,20 @@ export default function NewOrderPage() {
               <p className="text-slate-500 text-center py-8">No items added yet</p>
             ) : (
               <div className="space-y-4">
-                {orderItems.map((item) => (
-                  <div key={item.productId} className="flex items-center gap-4 p-4 border rounded-lg">
+                {orderItems.map((item, index) => (
+                  <div key={`${item.productId}-${item.color || 'default'}-${index}`} className="flex items-center gap-4 p-4 border rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-[#151875] dark:text-white">{item.product.name}</p>
+                      {item.color && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <div 
+                            className="w-4 h-4 rounded-full border border-slate-300"
+                            style={{ backgroundColor: item.color.toLowerCase() }}
+                            title={item.color}
+                          />
+                          <span className="text-xs text-slate-400">{item.color}</span>
+                        </div>
+                      )}
                       <p className="text-sm text-slate-500">₦{item.price.toFixed(2)} each</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -200,12 +236,12 @@ export default function NewOrderPage() {
                         type="number"
                         min="1"
                         value={item.quantity}
-                        onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value))}
+                        onChange={(e) => updateQuantity(item.productId, item.color, parseInt(e.target.value))}
                         className="w-16 px-2 py-1 border rounded text-center dark:bg-slate-800 dark:border-slate-700"
                       />
                       <button
                         type="button"
-                        onClick={() => removeProduct(item.productId)}
+                        onClick={() => removeProduct(item.productId, item.color)}
                         className="p-1 text-red-500 hover:bg-red-50 rounded"
                       >
                         <Trash2 size={16} />

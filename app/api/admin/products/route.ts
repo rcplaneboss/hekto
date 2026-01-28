@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         price: true,
         stock: true,
         imageUrl: true,
-        trackInventory: true,
+        colors: true,
       },
       orderBy: { name: 'asc' }
     });
