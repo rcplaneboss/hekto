@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Josefin_Sans, Lato } from "next/font/google";
 import HeaderContainer from "@/components/header/HeaderContainer";
 import FooterContainer from "@/components/footer/FooterContainer";
+import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
@@ -120,6 +121,7 @@ export default async function RootLayout({
         <HeaderContainer />
         {children}
         <FooterContainer />
+        <ChatWidget />
         </CartProvider>
         </WishlistProvider>
       </body>
