@@ -97,7 +97,7 @@ async function callGrokAPI(messages: Message[]): Promise<Response> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "grok-beta",
+      model: "grok-2-1212",
       messages: messages,
       tools: [
         {
@@ -421,10 +421,18 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Chat API error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error details:", {
+      message: errorMessage,
+      type: typeof error,
+      stack: error instanceof Error ? error.stack : "No stack trace",
+    });
+    
     return new Response(
       JSON.stringify({
         error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: errorMessage,
+        timestamp: new Date().toISOString(),
       }),
       {
         status: 500,

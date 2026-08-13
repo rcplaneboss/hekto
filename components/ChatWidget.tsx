@@ -124,7 +124,12 @@ export default function ChatWidget() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || "Failed to get response");
+        } catch (e) {
+          throw new Error(`API Error ${response.status}: Failed to get response`);
+        }
       }
 
       const reader = response.body?.getReader();
