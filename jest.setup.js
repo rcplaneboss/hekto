@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom'
 
 // Mock environment variables for tests
+// Keep both GROQ_API_KEY and XAI_API_KEY for backward compatibility in tests
+process.env.XAI_API_KEY = process.env.XAI_API_KEY || 'test-key-12345'
+process.env.GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.XAI_API_KEY
 // Provide an independent test fixture for GROQ_API_KEY so CI that only defines XAI_API_KEY
 // doesn't accidentally make GROQ_API_KEY inherit an x.ai/Grok key. This prevents mocked
 // tests from hiding missing Groq configuration and avoids sending invalid keys to Groq.
