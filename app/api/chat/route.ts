@@ -231,7 +231,6 @@ export async function POST(req: NextRequest) {
       async start(controller) {
         try {
           let fullAssistantContent = "";
-          // Accumulate tool arguments by tool call array index
           const toolCallsMap: Record<number, { id: string; name: string; args: string }> = {};
 
           for await (const chunk of parseSSEStream(reader)) {
@@ -292,6 +291,7 @@ export async function POST(req: NextRequest) {
                   );
                 } catch (err) {
                   console.error("Tool execution error:", err);
+                  toolResults.push({ id: tool.id, name: tool.name, content: "Tool execution error" });
                   controller.enqueue(
                     new TextEncoder().encode(
                       `data: ${JSON.stringify({ type: "tool_result", data: { name: tool.name, content: "Tool execution error" } })}\n\n`
@@ -300,12 +300,12 @@ export async function POST(req: NextRequest) {
                 }
               }
 
-              // Send OpenAI/Groq standard follow-up completion request
-              const followUpMessages = [
+              // Maintain dynamic conversation context for multi-turn tool execution
+              let currentMessages: any[] = [
                 ...messages,
                 {
                   role: "assistant",
-                  content: null,
+                  content: fullAssistantContent || null,
                   tool_calls: executedToolCalls.map((tc) => ({
                     id: tc.id,
                     type: "function",
@@ -322,31 +322,104 @@ export async function POST(req: NextRequest) {
                 })),
               ];
 
-              try {
-                const followRes = await callGroqAPI(followUpMessages, false);
-                const followJson = await followRes.json();
-                const followText = followJson.choices?.[0]?.message?.content || "";
+              // Bounded loop for multi-step tool calls
+              const MAX_TOOL_LOOPS = 5;
+              let completed = false;
 
-                if (followText) {
-                  controller.enqueue(
-                    new TextEncoder().encode(
-                      `data: ${JSON.stringify({ type: "content", data: followText })}\n\n`
-                    )
-                  );
-                  addMessageToHistory(sessionId, { role: "assistant", content: followText });
+              for (let loop = 0; loop < MAX_TOOL_LOOPS; loop++) {
+                try {
+                  const followRes = await callGroqAPI(currentMessages, false);
+                  const followJson = await followRes.json();
+                  const followChoice = followJson.choices?.[0];
+                  const responseMessage = followChoice?.message;
+
+                  if (!responseMessage) break;
+
+                  // Check if the LLM requested additional tool calls
+                  if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
+                    currentMessages.push({
+                      role: "assistant",
+                      content: responseMessage.content || null,
+                      tool_calls: responseMessage.tool_calls,
+                    });
+
+                    const nextTools = responseMessage.tool_calls.map((tc: any) => {
+                      let parsedArgs = {};
+                      try {
+                        parsedArgs = tc.function.arguments ? JSON.parse(tc.function.arguments) : {};
+                      } catch {
+                        parsedArgs = { _raw: tc.function.arguments };
+                      }
+                      return {
+                        id: tc.id,
+                        name: tc.function.name,
+                        arguments: parsedArgs,
+                      };
+                    });
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: "tool_calls", data: nextTools })}\n\n`
+                      )
+                    );
+
+                    for (const tool of nextTools) {
+                      try {
+                        const result = await executeTool(tool as ToolCall, sessionId);
+                        currentMessages.push({
+                          role: "tool",
+                          tool_call_id: tool.id,
+                          content: result.content,
+                        });
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ type: "tool_result", data: result })}\n\n`
+                          )
+                        );
+                      } catch (err) {
+                        console.error("Tool execution error:", err);
+                        const errText = "Tool execution error";
+                        currentMessages.push({
+                          role: "tool",
+                          tool_call_id: tool.id,
+                          content: errText,
+                        });
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ type: "tool_result", data: { name: tool.name, content: errText } })}\n\n`
+                          )
+                        );
+                      }
+                    }
+                  } else {
+                    // Final text response reached
+                    const finalContent = responseMessage.content || "";
+                    if (finalContent) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ type: "content", data: finalContent })}\n\n`
+                        )
+                      );
+                      addMessageToHistory(sessionId, { role: "assistant", content: finalContent });
+                    }
+                    controller.enqueue(
+                      new TextEncoder().encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
+                    );
+                    completed = true;
+                    break;
+                  }
+                } catch (err) {
+                  console.error("Follow-up completion failed:", err);
+                  break;
                 }
+              }
 
+              if (!completed) {
                 controller.enqueue(
                   new TextEncoder().encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
                 );
-              } catch (err) {
-                console.error("Follow-up completion failed:", err);
-                controller.enqueue(
-                  new TextEncoder().encode(
-                    `data: ${JSON.stringify({ type: "error", message: "Follow-up completion failed" })}\n\n`
-                  )
-                );
               }
+
               break;
             }
 
@@ -381,4 +454,4 @@ export async function POST(req: NextRequest) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-          }
+                      }
