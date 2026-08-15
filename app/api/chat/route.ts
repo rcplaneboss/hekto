@@ -23,7 +23,8 @@ import { auth } from "@/auth";
 
 // Prefer GROQ_API_KEY but fall back to XAI_API_KEY for backward compatibility
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.XAI_API_KEY;
-const GROQ_API_URL = "https://api.groq.com/openai/v1";
+// Use the OpenAI-compatible path Groq expects for chat completions
+const GROQ_API_URL = "https://api.groq.com/v1/chat/completions";
 
 if (!GROQ_API_KEY) {
   console.warn(
