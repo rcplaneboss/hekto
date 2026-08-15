@@ -2,34 +2,110 @@
  * AI Shopping Assistant Chat API Route (Groq)
  *
  * Endpoint: POST /api/chat
- *
- * Implements Groq streaming tool-calls handling:
- * - Accumulates choice.delta?.tool_calls fragments by call id
- * - Reconstructs arguments JSON after streaming
- * - Executes local tools and returns tool results to the model as role:"tool" messages
- * - Sends a second (non-streaming) Groq completion to let the assistant finish its response
  */
 
 import { NextRequest } from "next/server";
 import {
   getConversationHistory,
   addMessageToHistory,
+  ChatMessage,
 } from "@/lib/chat-session-store";
 import { executeTool, ToolCall } from "@/lib/ai-tools";
 import { auth } from "@/auth";
 
-// Require GROQ_API_KEY explicitly
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-// Use Groq's OpenAI-compatible chat/completions path (includes /openai)
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 if (!GROQ_API_KEY) {
-  console.warn(
-    "GROQ_API_KEY not set. AI chat will not work. Set GROQ_API_KEY in .env.local or in Vercel Environment Variables"
-  );
+  console.warn("GROQ_API_KEY not set in environment variables.");
 }
 
-// System prompt for the AI assistant
+// Tool schemas matching tools.ts parameters (snake_case)
+const AI_TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "search_products",
+      description: "Find products by name, category, or tags",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Search term or phrase" },
+          limit: { type: "number", description: "Number of products to return (default: 5)" },
+        },
+        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_product_details",
+      description: "Get full info about a specific product",
+      parameters: {
+        type: "object",
+        properties: {
+          product_id: { type: "string", description: "Unique product ID" },
+        },
+        required: ["product_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "add_to_cart",
+      description: "Add items to customer's cart",
+      parameters: {
+        type: "object",
+        properties: {
+          product_id: { type: "string", description: "Product ID" },
+          quantity: { type: "number", description: "Quantity to add" },
+          color: { type: "string", description: "Selected color variant" },
+          size: { type: "string", description: "Selected size variant" },
+        },
+        required: ["product_id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_order_status",
+      description: "Check order status for the authenticated customer",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "answer_faq",
+      description: "Get answers to FAQ and policy questions",
+      parameters: {
+        type: "object",
+        properties: {
+          question: { type: "string", description: "Customer question or topic" },
+        },
+        required: ["question"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "start_checkout",
+      description: "Guide customer to checkout page (never charge!)",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+  },
+];
+
 const SYSTEM_PROMPT = `You are Hekto, a friendly and helpful shopping assistant for an e-commerce store.
 
 Your role is to:
@@ -42,61 +118,61 @@ Your role is to:
 IMPORTANT RULES:
 - Always be helpful, friendly, and professional
 - When users want to buy something, help them search for it and offer to add to cart
-- Use the search_products tool when users ask about products
+- Use search_products when users ask about products
 - When showing a specific product, use get_product_details to show full info
-- When users want to add to cart, use add_to_cart tool with product ID
-- Help users track their orders with get_order_status tool
-- Answer FAQ/policy questions with answer_faq tool
-- When users are ready to buy, guide them to checkout with start_checkout tool
+- When users want to add to cart, use add_to_cart with product_id
+- Help users track their orders with get_order_status
+- Answer FAQ/policy questions with answer_faq
+- When users are ready to buy, guide them with start_checkout
 - Never pretend to place orders or charge cards - only use start_checkout for handoff
-- Be concise but informative
-- If unsure, ask clarifying questions
+- Be concise but informative`;
 
-You have access to these tools:
-- search_products: Find products by name, category, or tags
-- get_product_details: Get full info about a specific product
-- add_to_cart: Add items to the customer's cart
-- get_order_status: Check order status for a customer
-- answer_faq: Get answers to FAQ and policy questions
-- start_checkout: Guide customer to checkout page (never charge!)
-
-Current store info:
-- Currency: NGN (Nigerian Naira)
-- We ship to Bangladesh and neighboring countries
-- Standard delivery: 5-7 business days`;
+interface CartContext {
+  items?: Array<{
+    productId: string;
+    quantity: number;
+    name?: string;
+    price?: number;
+  }>;
+  total?: number;
+}
 
 interface ChatRequest {
   message: string;
   sessionId?: string;
-  cartContext?: any;
+  cartContext?: CartContext;
 }
 
-interface ToolCallStreamPart {
-  id: string;
-  name: string;
-  arguments?: string; // partial chunk
+interface GroqMessage {
+  role: string;
+  content: string | null;
+  tool_calls?: Array<{
+    id: string;
+    type: string;
+    function: {
+      name: string;
+      arguments: string;
+    };
+  }>;
+  tool_call_id?: string;
 }
 
-interface ToolBufferEntry {
-  id: string;
-  name: string;
-  argParts: string[];
+interface GroqRequestBody {
+  model: string;
+  messages: GroqMessage[];
+  tools: typeof AI_TOOLS;
+  tool_choice: string;
+  stream: boolean;
+  temperature: number;
+  max_tokens: number;
 }
 
-interface Message {
-  role: "user" | "assistant" | "tool" | "system";
-  name?: string; // for role: tool messages
-  content: string;
-}
-
-async function callGroqAPI(messages: Message[], stream = true): Promise<Response> {
-  const body: any = {
-    model: "openai/gpt-oss-20b",
-    messages: messages.map((m) => {
-      const out: any = { role: m.role, content: m.content };
-      if (m.name) out.name = m.name;
-      return out;
-    }),
+async function callGroqAPI(messages: GroqMessage[], stream = true): Promise<Response> {
+  const body: GroqRequestBody = {
+    model: "llama-3.1-8b-instant",
+    messages,
+    tools: AI_TOOLS,
+    tool_choice: "auto",
     stream,
     temperature: 0.7,
     max_tokens: 1000,
@@ -137,14 +213,13 @@ async function* parseSSEStream(
 
       for (const line of lines) {
         if (line.startsWith("data: ")) {
-          const data = line.slice(6);
+          const data = line.slice(6).trim();
           if (data === "[DONE]") continue;
 
           try {
-            const parsed = JSON.parse(data);
-            yield parsed;
+            yield JSON.parse(data);
           } catch (e) {
-            // ignore parse errors
+            // Ignore partial SSE chunks
           }
         }
       }
@@ -173,38 +248,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get conversation history
-    const history = getConversationHistory(sessionId);
+    // Get authenticated session for secure operations
+    const session = await auth();
 
-    // Add user message to history
+    const history = getConversationHistory(sessionId);
     addMessageToHistory(sessionId, { role: "user", content: message });
 
-    // Prepare messages for Groq API (system + history + user)
-    const messages: Message[] = [
+    const messages: GroqMessage[] = [
       { role: "system", content: SYSTEM_PROMPT },
-      ...history.map((m: any) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      ...history.map((m) => ({ role: m.role, content: m.content })),
       { role: "user", content: `${message}${cartContext ? `\n\n[Cart Context: ${JSON.stringify(cartContext)}]` : ""}` },
     ];
 
-    // Stream response from Groq API
     const groqResponse = await callGroqAPI(messages, true);
     const reader = groqResponse.body!.getReader();
 
-    // Create a readable stream to send to client
     const responseStream = new ReadableStream({
       async start(controller) {
         try {
           let fullAssistantContent = "";
-
-          // Buffer tool call fragments by id
-          const toolBuffers: Record<string, ToolBufferEntry> = {};
-          let toolCallOrder: string[] = [];
+          // Accumulate tool arguments by tool call array index
+          const toolCallsMap: Record<number, { id: string; name: string; args: string }> = {};
 
           for await (const chunk of parseSSEStream(reader)) {
             const choice = chunk.choices?.[0];
             if (!choice) continue;
 
-            // Handle text content
             if (choice.delta?.content) {
               fullAssistantContent += choice.delta.content;
               controller.enqueue(
@@ -214,51 +283,44 @@ export async function POST(req: NextRequest) {
               );
             }
 
-            // GROQ streams partial tool call pieces under choice.delta?.tool_calls
             if (choice.delta?.tool_calls) {
-              const parts: ToolCallStreamPart[] = choice.delta.tool_calls;
-              for (const part of parts) {
-                if (!part || !part.id) continue;
-                if (!toolBuffers[part.id]) {
-                  toolBuffers[part.id] = { id: part.id, name: part.name, argParts: [] };
-                  toolCallOrder.push(part.id);
+              for (const part of choice.delta.tool_calls) {
+                const idx = part.index ?? 0;
+                if (!toolCallsMap[idx]) {
+                  toolCallsMap[idx] = { id: "", name: "", args: "" };
                 }
-                if (typeof part.arguments === "string") {
-                  toolBuffers[part.id].argParts.push(part.arguments);
-                }
+                if (part.id) toolCallsMap[idx].id = part.id;
+                if (part.function?.name) toolCallsMap[idx].name = part.function.name;
+                if (part.function?.arguments) toolCallsMap[idx].args += part.function.arguments;
               }
             }
 
-            // If model signaled it's done calling tools, proceed to execute them
             if (choice.finish_reason === "tool_calls" || choice.finish_reason === "function_call") {
-              // Reconstruct tool calls
-              const toolCalls: ToolCall[] = [];
-              for (const id of toolCallOrder) {
-                const entry = toolBuffers[id];
-                const joined = entry.argParts.join("");
-                let parsedArgs: any = {};
+              const executedToolCalls = Object.values(toolCallsMap).map((tc) => {
+                let parsedArgs = {};
                 try {
-                  parsedArgs = joined ? JSON.parse(joined) : {};
-                } catch (e) {
-                  // If parsing fails, keep raw string under _raw
-                  parsedArgs = { _raw: joined };
+                  parsedArgs = tc.args ? JSON.parse(tc.args) : {};
+                } catch {
+                  parsedArgs = { _raw: tc.args };
                 }
-                toolCalls.push({ name: entry.name, arguments: parsedArgs });
-              }
+                return {
+                  id: tc.id,
+                  name: tc.name,
+                  arguments: parsedArgs,
+                };
+              });
 
-              // Inform client about tool_calls (SSE)
               controller.enqueue(
                 new TextEncoder().encode(
-                  `data: ${JSON.stringify({ type: "tool_calls", data: toolCalls })}\n\n`
+                  `data: ${JSON.stringify({ type: "tool_calls", data: executedToolCalls })}\n\n`
                 )
               );
 
-              // Execute tools sequentially and send tool_result events
-              const toolResults: { name: string; content: string }[] = [];
-              for (const tool of toolCalls) {
+              const toolResults: { id: string; name: string; content: string }[] = [];
+              for (const tool of executedToolCalls) {
                 try {
-                  const result = await executeTool(tool as ToolCall, sessionId);
-                  toolResults.push({ name: tool.name, content: result.content });
+                  const result = await executeTool(tool as ToolCall, sessionId, session);
+                  toolResults.push({ id: tool.id, name: tool.name, content: result.content });
                   controller.enqueue(
                     new TextEncoder().encode(
                       `data: ${JSON.stringify({ type: "tool_result", data: result })}\n\n`
@@ -274,60 +336,123 @@ export async function POST(req: NextRequest) {
                 }
               }
 
-              // After running tools, we must send a SECOND Groq completion so the assistant can finish its reply.
-              // Build follow-up messages: include the original messages, then an assistant message containing the tool_calls metadata,
-              // followed by role:"tool" messages containing each tool's output. Groq expects OpenAI-like roles; Groq uses role:"tool" for tool responses.
-              const followUpMessages: Message[] = [
+              // Bounded loop for iterative tool calling
+              const MAX_ITERATIONS = 5;
+              let followUpMessages: GroqMessage[] = [
                 ...messages,
-                // assistant tool_calls message — provide structured info about the calls (keeps IDs/names/arguments)
-                { role: "assistant", content: JSON.stringify({ tool_calls: toolCalls }) },
-                // include each tool result as a role: "tool" message with name and content
-                ...toolResults.map((r) => ({ role: "tool", name: r.name, content: r.content })),
+                {
+                  role: "assistant",
+                  content: null,
+                  tool_calls: executedToolCalls.map((tc) => ({
+                    id: tc.id,
+                    type: "function",
+                    function: {
+                      name: tc.name,
+                      arguments: JSON.stringify(tc.arguments),
+                    },
+                  })),
+                },
+                ...toolResults.map((r) => ({
+                  role: "tool",
+                  tool_call_id: r.id,
+                  content: r.content,
+                })),
               ];
 
               try {
-                const followRes = await callGroqAPI(followUpMessages, false);
-                const followJson = await followRes.json();
+                for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+                  const followRes = await callGroqAPI(followUpMessages, false);
+                  const followJson = await followRes.json();
+                  const followMessage = followJson.choices?.[0]?.message;
 
-                // Extract assistant message from follow-up completion
-                const followText =
-                  followJson.choices?.[0]?.message?.content || followJson.choices?.[0]?.delta?.content || "";
+                  if (!followMessage) break;
 
-                if (followText) {
-                  // Send remaining assistant content to client
-                  controller.enqueue(
-                    new TextEncoder().encode(
-                      `data: ${JSON.stringify({ type: "content", data: followText })}\n\n`
-                    )
-                  );
+                  // Check if response has further tool calls
+                  if (followMessage.tool_calls && followMessage.tool_calls.length > 0) {
+                    // Append assistant message with tool calls
+                    followUpMessages.push({
+                      role: "assistant",
+                      content: followMessage.content || null,
+                      tool_calls: followMessage.tool_calls,
+                    });
 
-                  // Save assistant message to history
-                  addMessageToHistory(sessionId, { role: "assistant", content: followText });
+                    // Stream tool calls to client
+                    const nextToolCalls = followMessage.tool_calls.map((tc: any) => ({
+                      id: tc.id,
+                      name: tc.function.name,
+                      arguments: JSON.parse(tc.function.arguments || "{}"),
+                    }));
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: "tool_calls", data: nextToolCalls })}\n\n`
+                      )
+                    );
+
+                    // Execute all tool calls
+                    const nextToolResults: { id: string; name: string; content: string }[] = [];
+                    for (const tc of nextToolCalls) {
+                      try {
+                        const result = await executeTool(tc as ToolCall, sessionId, session);
+                        nextToolResults.push({ id: tc.id, name: tc.name, content: result.content });
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ type: "tool_result", data: result })}\n\n`
+                          )
+                        );
+                      } catch (err) {
+                        console.error("Tool execution error:", err);
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ type: "tool_result", data: { name: tc.name, content: "Tool execution error" } })}\n\n`
+                          )
+                        );
+                      }
+                    }
+
+                    // Append tool results
+                    followUpMessages.push(
+                      ...nextToolResults.map((r) => ({
+                        role: "tool" as const,
+                        tool_call_id: r.id,
+                        content: r.content,
+                      }))
+                    );
+
+                    // Continue loop for next iteration
+                  } else {
+                    // No more tool calls - response has plain content
+                    const followText = followMessage.content || "";
+                    if (followText) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ type: "content", data: followText })}\n\n`
+                        )
+                      );
+                      addMessageToHistory(sessionId, { role: "assistant", content: followText });
+                    }
+                    break; // Exit loop
+                  }
                 }
 
-                // Signal done
                 controller.enqueue(
                   new TextEncoder().encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
                 );
               } catch (err) {
-                console.error("Follow-up Groq completion failed:", err);
+                console.error("Follow-up completion failed:", err);
                 controller.enqueue(
                   new TextEncoder().encode(
                     `data: ${JSON.stringify({ type: "error", message: "Follow-up completion failed" })}\n\n`
                   )
                 );
               }
-
-              // break out — we've completed the flow for this request
               break;
             }
 
-            // If model finished normally without tool calls
             if (choice.finish_reason === "stop") {
               if (fullAssistantContent) {
                 addMessageToHistory(sessionId, { role: "assistant", content: fullAssistantContent });
               }
-
               controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
               break;
             }
@@ -350,16 +475,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Chat API error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error details:", {
-      message: errorMessage,
-      type: typeof error,
-      stack: error instanceof Error ? error.stack : "No stack trace",
-    });
-
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: errorMessage, timestamp: new Date().toISOString() }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
+          }
