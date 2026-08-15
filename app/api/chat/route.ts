@@ -18,7 +18,7 @@ if (!GROQ_API_KEY) {
   console.warn("GROQ_API_KEY not set in environment variables.");
 }
 
-// Tool Schemas matching tools.ts parameters (snake_case)
+// Tool schemas matching tools.ts parameters (snake_case)
 const AI_TOOLS = [
   {
     type: "function",
@@ -125,12 +125,8 @@ IMPORTANT RULES:
 - Help users track their orders with get_order_status
 - Answer FAQ/policy questions with answer_faq
 - When users are ready to buy, guide them with start_checkout
-- Never pretend to place orders or charge cards—only use start_checkout for handoff
-- Be concise but informative
-
-Current store info:
-- Currency: NGN (Nigerian Naira)
-- Standard delivery: 5-7 business days`;
+- Never pretend to place orders or charge cards - only use start_checkout for handoff
+- Be concise but informative`;
 
 interface ChatRequest {
   message: string;
@@ -190,7 +186,7 @@ async function* parseSSEStream(
           try {
             yield JSON.parse(data);
           } catch (e) {
-            // Ignore parse errors on incomplete chunks
+            // Ignore partial SSE chunks
           }
         }
       }
@@ -235,6 +231,7 @@ export async function POST(req: NextRequest) {
       async start(controller) {
         try {
           let fullAssistantContent = "";
+          // Accumulate tool arguments by tool call array index
           const toolCallsMap: Record<number, { id: string; name: string; args: string }> = {};
 
           for await (const chunk of parseSSEStream(reader)) {
@@ -303,7 +300,7 @@ export async function POST(req: NextRequest) {
                 }
               }
 
-              // OpenAI/Groq compliant follow-up message structure
+              // Send OpenAI/Groq standard follow-up completion request
               const followUpMessages = [
                 ...messages,
                 {
@@ -384,4 +381,4 @@ export async function POST(req: NextRequest) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
+          }
