@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send, Loader2, ShoppingCart } from "lucide-react";
-import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { addToCart } from "@/app/actions/cart";
 
@@ -10,28 +9,13 @@ interface Message {
   id: string;
   type: "user" | "assistant" | "product" | "tool";
   content: string;
-  products?: any[];
+  products?: Array<{
+    id: string;
+    name: string;
+    price?: string;
+    stock?: string;
+  }>;
 }
-
-interface ProductCard {
-  id: string;
-  name: string;
-  price: number;
-  discountPercentage?: number;
-  imageUrl: string;
-  stock: number;
-}
-
-/**
- * AI Shopping Assistant Chat Widget
- * 
- * Features:
- * - Floating chat widget (bottom-right)
- * - Expandable/collapsible panel
- * - Streaming responses with typing indicator
- * - Product cards with add-to-cart
- * - Session-based conversation storage
- */
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +33,7 @@ export default function ChatWidget() {
     if (storedSessionId) {
       setSessionId(storedSessionId);
     } else {
-      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       localStorage.setItem("chatSessionId", newSessionId);
       setSessionId(newSessionId);
     }
@@ -76,7 +60,6 @@ export default function ChatWidget() {
       await addToCart(productId, 1);
       await refreshCart();
       
-      // Show success toast
       const tempMessage: Message = {
         id: `toast-${Date.now()}`,
         type: "assistant",
@@ -111,13 +94,13 @@ export default function ChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: input,
+          message: userMessage.content,
           sessionId,
           cartContext: {
             itemCount: cart?.items?.length || 0,
-            subtotal: cart ? 
-              cart.items.reduce((sum: number, item: any) => 
-                sum + (item.product.price * item.quantity), 0) 
+            subtotal: cart
+              ? cart.items.reduce((sum: number, item: any) => 
+                  sum + (item.product.price * item.quantity), 0)
               : 0,
           },
         }),
@@ -173,35 +156,50 @@ export default function ChatWidget() {
                   break;
 
                 case "tool_calls":
-                  // Show tool calls being executed
-                  data.data.forEach((tool: any) => {
-                    const toolMessage: Message = {
-                      id: `tool-${Date.now()}-${Math.random()}`,
-                      type: "tool",
-                      content: `🔍 Searching for ${tool.arguments.query || "information"}...`,
-                    };
-                    setMessages((prev) => [...prev, toolMessage]);
-                  });
+                  if (Array.isArray(data.data)) {
+                    data.data.forEach((tool: any) => {
+                      const query =
+                        tool.arguments?.query ||
+                        tool.arguments?.question ||
+                        tool.arguments?.product_id ||
+                        tool.arguments?.email ||
+                        "information";
+                      
+                      const toolMessage: Message = {
+                        id: `tool-${Date.now()}-${Math.random()}`,
+                        type: "tool",
+                        content: `🔍 Searching for ${query}...`,
+                      };
+                      setMessages((prev) => [...prev, toolMessage]);
+                    });
+                  }
                   break;
 
                 case "tool_result":
-                  // Tool result - extract products if present
-                  if (data.data.name === "search_products") {
-                    const productMatches = data.data.content.match(/- \*\*(.+?)\*\*.*?ID: (.+?)\)/g);
-                    if (productMatches) {
-                      // Parse and display products
+                  if (data.data?.name === "search_products" && typeof data.data.content === "string") {
+                    const contentStr = data.data.content;
+                    const matches = contentStr.match(/- \*\*(.+?)\*\*[\s\S]*?(?=(?:- \*\*|$))/g);
+
+                    if (matches) {
+                      const parsedProducts = matches.map((block: string) => {
+                        const nameMatch = block.match(/- \*\*(.+?)\*\*/);
+                        const idMatch = block.match(/ID:\s*([^\)\s]+)/);
+                        const priceMatch = block.match(/Price:\s*\$([0-9\.]+)/);
+                        const stockMatch = block.match(/Stock:\s*(.+?)(?:\n|$)/);
+
+                        return {
+                          id: idMatch?.[1] || `prod-${Math.random()}`,
+                          name: nameMatch?.[1] || "Product",
+                          price: priceMatch?.[1] ? `$${priceMatch[1]}` : undefined,
+                          stock: stockMatch?.[1]?.trim() || "Available",
+                        };
+                      });
+
                       const productMessage: Message = {
                         id: `products-${Date.now()}`,
                         type: "product",
-                        content: data.data.content,
-                        products: productMatches.map((match: string) => {
-                          const idMatch = match.match(/ID: (.+?)\)/);
-                          const nameMatch = match.match(/- \*\*(.+?)\*\*/);
-                          return {
-                            id: idMatch?.[1] || "",
-                            name: nameMatch?.[1] || "",
-                          };
-                        }),
+                        content: "Found some products for you:",
+                        products: parsedProducts,
                       };
                       setMessages((prev) => [...prev, productMessage]);
                     }
@@ -213,7 +211,7 @@ export default function ChatWidget() {
                   break;
               }
             } catch (e) {
-              // Skip invalid JSON
+              // Ignore partial SSE lines
             }
           }
         }
@@ -226,14 +224,9 @@ export default function ChatWidget() {
   };
 
   const ProductCardComponent = ({ product }: { product: any }) => {
-    // Parse product from search results
-    const priceMatch = product.match(/Price: \$(.+?)(?:\(|$)/);
-    const stockMatch = product.match(/Stock: (.+?)(?:\n|$)/);
-
     return (
       <div className="bg-white dark:bg-slate-800 border border-[#E1E1E1] dark:border-slate-700 rounded-lg p-4 mb-3 hover:shadow-md transition-shadow">
         <div className="flex gap-3">
-          {/* Placeholder for image - would need to fetch actual product image */}
           <div className="w-16 h-16 bg-gradient-to-br from-[#FB2E86]/10 to-[#3F509E]/10 rounded-lg flex-shrink-0 flex items-center justify-center">
             <ShoppingCart className="text-[#FB2E86]" size={20} />
           </div>
@@ -243,10 +236,10 @@ export default function ChatWidget() {
               {product.name}
             </h4>
             <p className="text-xs text-[#FB2E86] font-semibold mt-1">
-              {priceMatch ? `$${priceMatch[1]}` : "Price unavailable"}
+              {product.price || "Check store for pricing"}
             </p>
             <p className="text-xs text-[#8A8FB9] dark:text-slate-400 mt-1">
-              {stockMatch ? `${stockMatch[1]}` : "Check stock"}
+              {product.stock || "Available"}
             </p>
             <button
               onClick={() => handleAddToCart(product.id, product.name)}
@@ -262,7 +255,6 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Chat Widget Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -273,10 +265,8 @@ export default function ChatWidget() {
         </button>
       )}
 
-      {/* Chat Panel */}
       {isOpen && (
         <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)] h-[600px] bg-white dark:bg-slate-900 rounded-lg shadow-2xl flex flex-col border border-[#E1E1E1] dark:border-slate-700 z-50">
-          {/* Header */}
           <div className="bg-gradient-to-r from-[#FB2E86] to-[#3F509E] text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
             <div>
               <h3 className="font-josefin font-bold text-lg">Hekto Assistant</h3>
@@ -291,7 +281,6 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F8F8FD] dark:bg-slate-800">
             {messages.map((msg) => (
               <div
@@ -305,7 +294,7 @@ export default function ChatWidget() {
                 ) : msg.type === "product" ? (
                   <div className="w-full space-y-2">
                     <div className="bg-white dark:bg-slate-700 text-[#151875] dark:text-white rounded-lg px-4 py-2 text-sm max-w-xs">
-                      Found some products for you:
+                      {msg.content}
                     </div>
                     {msg.products?.map((product) => (
                       <ProductCardComponent key={product.id} product={product} />
@@ -333,14 +322,13 @@ export default function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
           <div className="border-t border-[#E1E1E1] dark:border-slate-700 p-4 bg-white dark:bg-slate-900 rounded-b-lg">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 placeholder="Ask me anything..."
                 className="flex-1 px-4 py-2 border border-[#BFC6E0] dark:border-slate-600 rounded-lg focus:outline-none focus:border-[#FB2E86] dark:focus:border-[#FB2E86] text-sm dark:bg-slate-800 dark:text-white"
                 disabled={isLoading}
@@ -363,4 +351,5 @@ export default function ChatWidget() {
       )}
     </>
   );
-}
+                                  }
+                              
