@@ -2,16 +2,16 @@
 
 ## 5-Minute Setup
 
-### 1. Get Your Grok API Key
-1. Visit: https://console.x.ai
-2. Sign up or log in
+### 1. Get Your Groq API Key
+1. Visit: https://api.groq.com/openai/v1
+2. Sign up or log in (Groq / GroqCloud)
 3. Create a new API key
 4. Copy the key
 
 ### 2. Add Environment Variable
 Create/update `.env.local`:
 ```bash
-XAI_API_KEY=xai_your_actual_key_here_from_console.x.ai
+GROQ_API_KEY=groq_your_actual_key_here
 ```
 
 ### 3. Install & Start
@@ -85,13 +85,13 @@ grep "ChatWidget" app/layout.tsx
 # Should show import and <ChatWidget /> in JSX
 ```
 
-### Problem: "XAI_API_KEY not set" errors
+### Problem: "GROQ_API_KEY not set" errors
 ```bash
 # Verify key is in .env.local
-cat .env.local | grep XAI_API_KEY
+cat .env.local | grep GROQ_API_KEY
 
 # Check it's valid format
-# Should be: XAI_API_KEY=xai_...
+# Should be: GROQ_API_KEY=groq_...
 ```
 
 ### Problem: Tests failing
@@ -109,91 +109,3 @@ npm test -- --watch
 5. Common issues:
    - Invalid API key
    - Database connection
-   - Missing products in DB
-
-## Architecture at a Glance
-
-```
-┌─────────────────────────────────────────────┐
-│  🎨 User Interface (ChatWidget)             │
-│  - Floating chat panel                      │
-│  - Streams responses token-by-token         │
-│  - Renders product cards                    │
-└──────────────┬──────────────────────────────┘
-               │ Sends message + cart context
-┌──────────────▼──────────────────────────────┐
-│  🔌 Chat API Endpoint                       │
-│  POST /api/chat                             │
-│  - Manages conversation history             │
-│  - Calls Grok API                           │
-└──────────────┬──────────────────────────────┘
-               │ Streams SSE responses
-┌──────────────▼──────────────────────────────┐
-│  🤖 Grok API (xAI)                          │
-│  - Tool-calling model                       │
-│  - Decides which tools to use               │
-└──────────────┬──────────────────────────────┘
-               │ Invokes tools
-┌──────────────▼──────────────────────────────┐
-│  🛠️  AI Tools Executor                      │
-│  - search_products                          │
-│  - get_product_details                      │
-│  - add_to_cart                              │
-│  - get_order_status                         │
-│  - answer_faq                               │
-│  - start_checkout                           │
-└──────────────┬──────────────────────────────┘
-               │ Queries database
-┌──────────────▼──────────────────────────────┐
-│  💾 Database (Prisma + PostgreSQL)          │
-│  - Products, Cart, Orders, Pages            │
-└─────────────────────────────────────────────┘
-```
-
-## Next Steps
-
-1. **Customize Welcome Message**
-   - Edit in `components/ChatWidget.tsx` line ~53
-   - Change the welcome message text
-
-2. **Add More Tools**
-   - Add new function in `lib/ai-tools.ts`
-   - Add to tool definitions in `app/api/chat/route.ts`
-   - Test with new Jest tests
-
-3. **Production Deployment**
-   - Replace in-memory store with Redis
-   - Add rate limiting to API
-   - Set up monitoring/logging
-   - Use production Grok API plan
-   - See `AI_SHOPPING_ASSISTANT_GUIDE.md` for details
-
-4. **Monitor & Improve**
-   - Log chat conversations for insights
-   - Track which tools are used most
-   - Improve product descriptions based on common queries
-
-## Key Commands
-
-```bash
-npm run dev              # Start development server
-npm test                 # Run all tests
-npm run test:watch      # Watch mode for tests
-npm run test:coverage   # Test coverage report
-npm run build           # Production build
-npm start               # Start production server
-npm run lint            # Run ESLint
-```
-
-## Resources
-
-- **Full Guide**: See `AI_SHOPPING_ASSISTANT_GUIDE.md`
-- **Grok API**: https://docs.x.ai
-- **Tests**: Run `npm test` to see test output
-- **Next.js Docs**: https://nextjs.org/docs
-
----
-
-**✅ Your AI shopping assistant is ready to use!**
-
-Need help? Check `AI_SHOPPING_ASSISTANT_GUIDE.md` for detailed documentation.

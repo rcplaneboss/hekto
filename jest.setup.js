@@ -1,7 +1,9 @@
 import '@testing-library/jest-dom'
 
 // Mock environment variables for tests
-process.env.XAI_API_KEY = 'test-key-12345'
+// Keep both GROQ_API_KEY and XAI_API_KEY for backward compatibility in tests
+process.env.XAI_API_KEY = process.env.XAI_API_KEY || 'test-key-12345'
+process.env.GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.XAI_API_KEY
 process.env.NEXTAUTH_URL = 'http://localhost:3000'
 process.env.NEXTAUTH_SECRET = 'test-secret'
 
@@ -29,4 +31,3 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 })
-

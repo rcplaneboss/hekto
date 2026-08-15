@@ -21,12 +21,13 @@ import {
 import { executeTool, ToolCall } from "@/lib/ai-tools";
 import { auth } from "@/auth";
 
-const GROK_API_KEY = process.env.XAI_API_KEY;
-const GROK_API_URL = "https://api.x.ai/v1/chat/completions";
+// Prefer GROQ_API_KEY but fall back to XAI_API_KEY for backward compatibility
+const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.XAI_API_KEY;
+const GROQ_API_URL = "https://api.groq.com/openai/v1";
 
-if (!GROK_API_KEY) {
+if (!GROQ_API_KEY) {
   console.warn(
-    "XAI_API_KEY not set. AI chat will not work. Set XAI_API_KEY in .env.local"
+    "GROQ_API_KEY not set. AI chat will not work. Set GROQ_API_KEY in .env.local"
   );
 }
 
@@ -89,15 +90,16 @@ interface Message {
   content: string | (TextBlock | ToolUseBlock)[];
 }
 
-async function callGrokAPI(messages: Message[]): Promise<Response> {
-  const response = await fetch(GROK_API_URL, {
+async function callGroqAPI(messages: Message[]): Promise<Response> {
+  const response = await fetch(GROQ_API_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${GROK_API_KEY}`,
+      Authorization: `Bearer ${GROQ_API_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "grok-2-1212",
+      // Updated model to a Groq / Llama instant variant
+      model: "llama-3.1-8b-instant",
       messages: messages,
       tools: [
         {
@@ -224,8 +226,8 @@ async function callGrokAPI(messages: Message[]): Promise<Response> {
 
   if (!response.ok) {
     const error = await response.text();
-    console.error("Grok API error:", response.status, error);
-    throw new Error(`Grok API error: ${response.status}`);
+    console.error("Groq API error:", response.status, error);
+    throw new Error(`Groq API error: ${response.status}`);
   }
 
   return response;
@@ -267,10 +269,10 @@ async function* parseSSEStream(
 
 export async function POST(req: NextRequest) {
   try {
-    if (!GROK_API_KEY) {
+    if (!GROQ_API_KEY) {
       return new Response(
         JSON.stringify({
-          error: "XAI_API_KEY not configured",
+          error: "GROQ_API_KEY not configured",
         }),
         {
           status: 500,
@@ -303,7 +305,7 @@ export async function POST(req: NextRequest) {
       content: message,
     });
 
-    // Prepare messages for Grok API
+    // Prepare messages for Groq API
     const messages: Message[] = [
       { role: "user", content: SYSTEM_PROMPT },
       ...history.map((msg) => ({
@@ -316,9 +318,9 @@ export async function POST(req: NextRequest) {
       },
     ];
 
-    // Stream response from Grok API
-    const grokResponse = await callGrokAPI(messages);
-    const reader = grokResponse.body!.getReader();
+    // Stream response from Groq API
+    const groqResponse = await callGroqAPI(messages);
+    const reader = groqResponse.body!.getReader();
 
     // Create a readable stream to send to client
     const responseStream = new ReadableStream({
