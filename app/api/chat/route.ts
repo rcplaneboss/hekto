@@ -21,14 +21,14 @@ import {
 import { executeTool, ToolCall } from "@/lib/ai-tools";
 import { auth } from "@/auth";
 
-// Prefer GROQ_API_KEY but fall back to XAI_API_KEY for backward compatibility
-const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.XAI_API_KEY;
+// Require GROQ_API_KEY explicitly — do not fall back to XAI_API_KEY to avoid provider/key mismatch
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 // Use the OpenAI-compatible path Groq expects for chat completions
 const GROQ_API_URL = "https://api.groq.com/v1/chat/completions";
 
 if (!GROQ_API_KEY) {
   console.warn(
-    "GROQ_API_KEY not set. AI chat will not work. Set GROQ_API_KEY in .env.local"
+    "GROQ_API_KEY not set. AI chat will not work. Set GROQ_API_KEY in .env.local or in Vercel Environment Variables"
   );
 }
 
