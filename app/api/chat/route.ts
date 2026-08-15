@@ -8,8 +8,10 @@ import { NextRequest } from "next/server";
 import {
   getConversationHistory,
   addMessageToHistory,
+  ChatMessage,
 } from "@/lib/chat-session-store";
 import { executeTool, ToolCall } from "@/lib/ai-tools";
+import { auth } from "@/auth";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -70,13 +72,10 @@ const AI_TOOLS = [
     type: "function",
     function: {
       name: "get_order_status",
-      description: "Check order status for a customer by email",
+      description: "Check order status for the authenticated customer",
       parameters: {
         type: "object",
-        properties: {
-          email: { type: "string", description: "Customer email address" },
-        },
-        required: ["email"],
+        properties: {},
       },
     },
   },
@@ -128,14 +127,48 @@ IMPORTANT RULES:
 - Never pretend to place orders or charge cards - only use start_checkout for handoff
 - Be concise but informative`;
 
+interface CartContext {
+  items?: Array<{
+    productId: string;
+    quantity: number;
+    name?: string;
+    price?: number;
+  }>;
+  total?: number;
+}
+
 interface ChatRequest {
   message: string;
   sessionId?: string;
-  cartContext?: any;
+  cartContext?: CartContext;
 }
 
-async function callGroqAPI(messages: any[], stream = true): Promise<Response> {
-  const body: any = {
+interface GroqMessage {
+  role: string;
+  content: string | null;
+  tool_calls?: Array<{
+    id: string;
+    type: string;
+    function: {
+      name: string;
+      arguments: string;
+    };
+  }>;
+  tool_call_id?: string;
+}
+
+interface GroqRequestBody {
+  model: string;
+  messages: GroqMessage[];
+  tools: typeof AI_TOOLS;
+  tool_choice: string;
+  stream: boolean;
+  temperature: number;
+  max_tokens: number;
+}
+
+async function callGroqAPI(messages: GroqMessage[], stream = true): Promise<Response> {
+  const body: GroqRequestBody = {
     model: "llama-3.1-8b-instant",
     messages,
     tools: AI_TOOLS,
@@ -215,12 +248,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get authenticated session for secure operations
+    const session = await auth();
+
     const history = getConversationHistory(sessionId);
     addMessageToHistory(sessionId, { role: "user", content: message });
 
-    const messages = [
+    const messages: GroqMessage[] = [
       { role: "system", content: SYSTEM_PROMPT },
-      ...history.map((m: any) => ({ role: m.role, content: m.content })),
+      ...history.map((m) => ({ role: m.role, content: m.content })),
       { role: "user", content: `${message}${cartContext ? `\n\n[Cart Context: ${JSON.stringify(cartContext)}]` : ""}` },
     ];
 
@@ -283,7 +319,7 @@ export async function POST(req: NextRequest) {
               const toolResults: { id: string; name: string; content: string }[] = [];
               for (const tool of executedToolCalls) {
                 try {
-                  const result = await executeTool(tool as ToolCall, sessionId);
+                  const result = await executeTool(tool as ToolCall, sessionId, session);
                   toolResults.push({ id: tool.id, name: tool.name, content: result.content });
                   controller.enqueue(
                     new TextEncoder().encode(
@@ -300,8 +336,9 @@ export async function POST(req: NextRequest) {
                 }
               }
 
-              // Send OpenAI/Groq standard follow-up completion request
-              const followUpMessages = [
+              // Bounded loop for iterative tool calling
+              const MAX_ITERATIONS = 5;
+              let followUpMessages: GroqMessage[] = [
                 ...messages,
                 {
                   role: "assistant",
@@ -323,17 +360,79 @@ export async function POST(req: NextRequest) {
               ];
 
               try {
-                const followRes = await callGroqAPI(followUpMessages, false);
-                const followJson = await followRes.json();
-                const followText = followJson.choices?.[0]?.message?.content || "";
+                for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+                  const followRes = await callGroqAPI(followUpMessages, false);
+                  const followJson = await followRes.json();
+                  const followMessage = followJson.choices?.[0]?.message;
 
-                if (followText) {
-                  controller.enqueue(
-                    new TextEncoder().encode(
-                      `data: ${JSON.stringify({ type: "content", data: followText })}\n\n`
-                    )
-                  );
-                  addMessageToHistory(sessionId, { role: "assistant", content: followText });
+                  if (!followMessage) break;
+
+                  // Check if response has further tool calls
+                  if (followMessage.tool_calls && followMessage.tool_calls.length > 0) {
+                    // Append assistant message with tool calls
+                    followUpMessages.push({
+                      role: "assistant",
+                      content: followMessage.content || null,
+                      tool_calls: followMessage.tool_calls,
+                    });
+
+                    // Stream tool calls to client
+                    const nextToolCalls = followMessage.tool_calls.map((tc: any) => ({
+                      id: tc.id,
+                      name: tc.function.name,
+                      arguments: JSON.parse(tc.function.arguments || "{}"),
+                    }));
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: "tool_calls", data: nextToolCalls })}\n\n`
+                      )
+                    );
+
+                    // Execute all tool calls
+                    const nextToolResults: { id: string; name: string; content: string }[] = [];
+                    for (const tc of nextToolCalls) {
+                      try {
+                        const result = await executeTool(tc as ToolCall, sessionId, session);
+                        nextToolResults.push({ id: tc.id, name: tc.name, content: result.content });
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ type: "tool_result", data: result })}\n\n`
+                          )
+                        );
+                      } catch (err) {
+                        console.error("Tool execution error:", err);
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ type: "tool_result", data: { name: tc.name, content: "Tool execution error" } })}\n\n`
+                          )
+                        );
+                      }
+                    }
+
+                    // Append tool results
+                    followUpMessages.push(
+                      ...nextToolResults.map((r) => ({
+                        role: "tool" as const,
+                        tool_call_id: r.id,
+                        content: r.content,
+                      }))
+                    );
+
+                    // Continue loop for next iteration
+                  } else {
+                    // No more tool calls - response has plain content
+                    const followText = followMessage.content || "";
+                    if (followText) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ type: "content", data: followText })}\n\n`
+                        )
+                      );
+                      addMessageToHistory(sessionId, { role: "assistant", content: followText });
+                    }
+                    break; // Exit loop
+                  }
                 }
 
                 controller.enqueue(

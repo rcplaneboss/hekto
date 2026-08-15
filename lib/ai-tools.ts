@@ -8,6 +8,7 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { addToCart } from "@/app/actions/cart";
+import type { Session } from "next-auth";
 
 export interface ToolCall {
   name: string;
@@ -179,10 +180,22 @@ export async function addProductToCart(
 
 /**
  * Tool 4: Get Order Status
- * Retrieves order status for authenticated users
+ * Retrieves order status for authenticated users only
+ * Enforces that users can only access their own orders
  */
-export async function getOrderStatus(email: string): Promise<ToolResult> {
+export async function getOrderStatus(session: Session | null): Promise<ToolResult> {
   try {
+    // Require authentication - reject unauthenticated requests
+    if (!session?.user?.email) {
+      return {
+        name: "get_order_status",
+        content: "You must be logged in to view your order status. Please sign in to continue.",
+      };
+    }
+
+    // Use email from authenticated session (not from client/model input)
+    const email = session.user.email;
+
     const orders = await prisma.order.findMany({
       where: { customerEmail: email },
       select: {
@@ -201,7 +214,7 @@ export async function getOrderStatus(email: string): Promise<ToolResult> {
     if (orders.length === 0) {
       return {
         name: "get_order_status",
-        content: `No orders found for ${email}. Start shopping to place your first order!`,
+        content: `No orders found for your account. Start shopping to place your first order!`,
       };
     }
 
@@ -328,7 +341,8 @@ You'll need to provide your email and shipping details to complete your purchase
  */
 export async function executeTool(
   tool: ToolCall,
-  sessionId?: string
+  sessionId?: string,
+  session?: Session | null
 ): Promise<ToolResult> {
   switch (tool.name) {
     case "search_products":
@@ -350,7 +364,7 @@ export async function executeTool(
       );
 
     case "get_order_status":
-      return getOrderStatus(tool.arguments.email);
+      return getOrderStatus(session || null);
 
     case "answer_faq":
       return answerFAQQuestion(tool.arguments.question);
