@@ -14,11 +14,24 @@ import { executeTool, ToolCall } from "@/lib/ai-tools";
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
+// Standard function-calling model on Groq
+const MODEL_NAME = "llama-3.3-70b-versatile";
+
 if (!GROQ_API_KEY) {
   console.warn("GROQ_API_KEY not set in environment variables.");
 }
 
-// Tool schemas matching tools.ts parameters (snake_case)
+// Strip raw model tool syntax leakage (<function=...> / function=...></function>)
+function sanitizeText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/<function=[\s\S]*?<\/function>/gi, "")
+    .replace(/function=[\s\S]*?<\/function>/gi, "")
+    .replace(/<tool_call>[\s\S]*?<\/tool_call>/gi, "")
+    .replace(/<\/?function.*?>/gi, "");
+}
+
+// Tool schemas matching tool parameters
 const AI_TOOLS = [
   {
     type: "function",
@@ -136,7 +149,7 @@ interface ChatRequest {
 
 async function callGroqAPI(messages: any[], stream = true): Promise<Response> {
   const body: any = {
-    model: "llama-3.1-8b-instant",
+    model: MODEL_NAME,
     messages,
     tools: AI_TOOLS,
     tool_choice: "auto",
@@ -186,7 +199,7 @@ async function* parseSSEStream(
           try {
             yield JSON.parse(data);
           } catch (e) {
-            // Ignore partial SSE chunks
+            // Ignore partial JSON
           }
         }
       }
@@ -221,7 +234,10 @@ export async function POST(req: NextRequest) {
     const messages = [
       { role: "system", content: SYSTEM_PROMPT },
       ...history.map((m: any) => ({ role: m.role, content: m.content })),
-      { role: "user", content: `${message}${cartContext ? `\n\n[Cart Context: ${JSON.stringify(cartContext)}]` : ""}` },
+      {
+        role: "user",
+        content: `${message}${cartContext ? `\n\n[Cart Context: ${JSON.stringify(cartContext)}]` : ""}`,
+      },
     ];
 
     const groqResponse = await callGroqAPI(messages, true);
@@ -238,12 +254,15 @@ export async function POST(req: NextRequest) {
             if (!choice) continue;
 
             if (choice.delta?.content) {
-              fullAssistantContent += choice.delta.content;
-              controller.enqueue(
-                new TextEncoder().encode(
-                  `data: ${JSON.stringify({ type: "content", data: choice.delta.content })}\n\n`
-                )
-              );
+              const cleanedChunk = sanitizeText(choice.delta.content);
+              if (cleanedChunk) {
+                fullAssistantContent += cleanedChunk;
+                controller.enqueue(
+                  new TextEncoder().encode(
+                    `data: ${JSON.stringify({ type: "content", data: cleanedChunk })}\n\n`
+                  )
+                );
+              }
             }
 
             if (choice.delta?.tool_calls) {
@@ -258,7 +277,10 @@ export async function POST(req: NextRequest) {
               }
             }
 
-            if (choice.finish_reason === "tool_calls" || choice.finish_reason === "function_call") {
+            if (
+              choice.finish_reason === "tool_calls" ||
+              choice.finish_reason === "function_call"
+            ) {
               const executedToolCalls = Object.values(toolCallsMap).map((tc) => {
                 let parsedArgs = {};
                 try {
@@ -267,7 +289,7 @@ export async function POST(req: NextRequest) {
                   parsedArgs = { _raw: tc.args };
                 }
                 return {
-                  id: tc.id,
+                  id: tc.id || `call_${Math.random().toString(36).substr(2, 9)}`,
                   name: tc.name,
                   arguments: parsedArgs,
                 };
@@ -291,16 +313,17 @@ export async function POST(req: NextRequest) {
                   );
                 } catch (err) {
                   console.error("Tool execution error:", err);
-                  toolResults.push({ id: tool.id, name: tool.name, content: "Tool execution error" });
+                  const errorMsg = "Tool execution error";
+                  toolResults.push({ id: tool.id, name: tool.name, content: errorMsg });
                   controller.enqueue(
                     new TextEncoder().encode(
-                      `data: ${JSON.stringify({ type: "tool_result", data: { name: tool.name, content: "Tool execution error" } })}\n\n`
+                      `data: ${JSON.stringify({ type: "tool_result", data: { name: tool.name, content: errorMsg } })}\n\n`
                     )
                   );
                 }
               }
 
-              // Maintain dynamic conversation context for multi-turn tool execution
+              // Dynamic messages context for multi-step execution
               let currentMessages: any[] = [
                 ...messages,
                 {
@@ -322,7 +345,7 @@ export async function POST(req: NextRequest) {
                 })),
               ];
 
-              // Bounded loop for multi-step tool calls
+              // Bounded loop for subsequent completions/tools
               const MAX_TOOL_LOOPS = 5;
               let completed = false;
 
@@ -330,12 +353,10 @@ export async function POST(req: NextRequest) {
                 try {
                   const followRes = await callGroqAPI(currentMessages, false);
                   const followJson = await followRes.json();
-                  const followChoice = followJson.choices?.[0];
-                  const responseMessage = followChoice?.message;
+                  const responseMessage = followJson.choices?.[0]?.message;
 
                   if (!responseMessage) break;
 
-                  // Check if the LLM requested additional tool calls
                   if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
                     currentMessages.push({
                       role: "assistant",
@@ -351,7 +372,7 @@ export async function POST(req: NextRequest) {
                         parsedArgs = { _raw: tc.function.arguments };
                       }
                       return {
-                        id: tc.id,
+                        id: tc.id || `call_${Math.random().toString(36).substr(2, 9)}`,
                         name: tc.function.name,
                         arguments: parsedArgs,
                       };
@@ -392,8 +413,7 @@ export async function POST(req: NextRequest) {
                       }
                     }
                   } else {
-                    // Final text response reached
-                    const finalContent = responseMessage.content || "";
+                    const finalContent = sanitizeText(responseMessage.content || "");
                     if (finalContent) {
                       controller.enqueue(
                         new TextEncoder().encode(
@@ -427,7 +447,9 @@ export async function POST(req: NextRequest) {
               if (fullAssistantContent) {
                 addMessageToHistory(sessionId, { role: "assistant", content: fullAssistantContent });
               }
-              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+              controller.enqueue(
+                new TextEncoder().encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
+              );
               break;
             }
           }
@@ -454,4 +476,5 @@ export async function POST(req: NextRequest) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-                      }
+                        }
+      
