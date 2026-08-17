@@ -17,6 +17,17 @@ interface Message {
   }>;
 }
 
+// Strip raw model tool syntax (Llama 3 function tags)
+const sanitizeContent = (text: string): string => {
+  if (!text) return "";
+  return text
+    .replace(/<function=[\s\S]*?<\/function>/gi, "")
+    .replace(/function=[\s\S]*?<\/function>/gi, "")
+    .replace(/<tool_call>[\s\S]*?<\/tool_call>/gi, "")
+    .replace(/<\/?function.*?>/gi, "")
+    .trim();
+};
+
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -38,7 +49,6 @@ export default function ChatWidget() {
       setSessionId(newSessionId);
     }
 
-    // Add welcome message on first open
     if (!storedSessionId) {
       setMessages([
         {
@@ -163,12 +173,13 @@ export default function ChatWidget() {
                         tool.arguments?.question ||
                         tool.arguments?.product_id ||
                         tool.arguments?.email ||
-                        "information";
+                        tool.name ||
+                        "action";
                       
                       const toolMessage: Message = {
                         id: `tool-${Date.now()}-${Math.random()}`,
                         type: "tool",
-                        content: `🔍 Searching for ${query}...`,
+                        content: `🔍 Executing ${tool.name?.replace(/_/g, " ")} (${query})...`,
                       };
                       setMessages((prev) => [...prev, toolMessage]);
                     });
@@ -282,38 +293,53 @@ export default function ChatWidget() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F8F8FD] dark:bg-slate-800">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
-              >
-                {msg.type === "user" ? (
-                  <div className="bg-[#FB2E86] text-white rounded-lg px-4 py-2 max-w-xs text-sm">
-                    {msg.content}
-                  </div>
-                ) : msg.type === "product" ? (
-                  <div className="w-full space-y-2">
-                    <div className="bg-white dark:bg-slate-700 text-[#151875] dark:text-white rounded-lg px-4 py-2 text-sm max-w-xs">
+            {messages.map((msg) => {
+              const cleanedContent = sanitizeContent(msg.content);
+
+              // Don't render empty assistant bubbles resulting from stripped function call tags
+              if (msg.type === "assistant" && !cleanedContent && !isLoading) {
+                return null;
+              }
+
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {msg.type === "user" ? (
+                    <div className="bg-[#FB2E86] text-white rounded-lg px-4 py-2 max-w-xs text-sm">
                       {msg.content}
                     </div>
-                    {msg.products?.map((product) => (
-                      <ProductCardComponent key={product.id} product={product} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-white dark:bg-slate-700 text-[#151875] dark:text-white rounded-lg px-4 py-2 max-w-xs text-sm whitespace-pre-wrap">
-                    {msg.content}
-                    {isLoading && msg.id === messages[messages.length - 1]?.id && (
-                      <span className="inline-flex gap-1 ml-2">
-                        <span className="w-1 h-1 bg-[#FB2E86] rounded-full animate-pulse" />
-                        <span className="w-1 h-1 bg-[#FB2E86] rounded-full animate-pulse" style={{ animationDelay: "0.2s" }} />
-                        <span className="w-1 h-1 bg-[#FB2E86] rounded-full animate-pulse" style={{ animationDelay: "0.4s" }} />
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                  ) : msg.type === "product" ? (
+                    <div className="w-full space-y-2">
+                      <div className="bg-white dark:bg-slate-700 text-[#151875] dark:text-white rounded-lg px-4 py-2 text-sm max-w-xs">
+                        {msg.content}
+                      </div>
+                      {msg.products?.map((product) => (
+                        <ProductCardComponent key={product.id} product={product} />
+                      ))}
+                    </div>
+                  ) : msg.type === "tool" ? (
+                    <div className="bg-[#EAEFFF] dark:bg-slate-700/60 text-[#3F509E] dark:text-slate-300 rounded-lg px-3 py-1.5 max-w-xs text-xs font-mono">
+                      {msg.content}
+                    </div>
+                  ) : (
+                    cleanedContent && (
+                      <div className="bg-white dark:bg-slate-700 text-[#151875] dark:text-white rounded-lg px-4 py-2 max-w-xs text-sm whitespace-pre-wrap">
+                        {cleanedContent}
+                        {isLoading && msg.id === messages[messages.length - 1]?.id && (
+                          <span className="inline-flex gap-1 ml-2">
+                            <span className="w-1 h-1 bg-[#FB2E86] rounded-full animate-pulse" />
+                            <span className="w-1 h-1 bg-[#FB2E86] rounded-full animate-pulse" style={{ animationDelay: "0.2s" }} />
+                            <span className="w-1 h-1 bg-[#FB2E86] rounded-full animate-pulse" style={{ animationDelay: "0.4s" }} />
+                          </span>
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+              );
+            })}
             {error && (
               <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg px-4 py-2 text-sm">
                 {error}
@@ -351,5 +377,5 @@ export default function ChatWidget() {
       )}
     </>
   );
-                                  }
-                              
+        }
+                  
