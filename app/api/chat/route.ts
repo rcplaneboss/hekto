@@ -15,7 +15,7 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Standard function-calling model on Groq
-const MODEL_NAME = "llama-3.3-70b-versatile";
+const MODEL_NAME = "openai/gpt-oss-120b";
 
 if (!GROQ_API_KEY) {
   console.warn("GROQ_API_KEY not set in environment variables.");
