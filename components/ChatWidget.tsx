@@ -33,12 +33,33 @@ const sanitizeContent = (text: string): string => {
     .trim();
 };
 
-// Component for rendering Markdown with clickable Next.js links & responsive tables
+// Component for rendering Markdown with clickable links, styled images & responsive tables
 const MarkdownRenderer = ({ content }: { content: string }) => {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
+        // Custom Image Component: styled, lazy-loaded, and gracefully handles broken URLs
+        img: ({ src, alt }) => {
+          if (!src) return null;
+          return (
+            <span className="block my-2">
+              <img
+                src={src}
+                alt={alt || "Product Image"}
+                className="w-full max-h-52 object-cover rounded-lg border border-slate-200 dark:border-slate-600 shadow-sm transition-opacity duration-200"
+                loading="lazy"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.onerror = null; // Prevent infinite error loops
+                  target.style.display = "none"; // Hide element gracefully if URL fails to load
+                }}
+              />
+            </span>
+          );
+        },
+
+        // Next.js aware links
         a: ({ href, children }) => {
           if (href?.startsWith("/")) {
             return (
@@ -61,6 +82,8 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
             </a>
           );
         },
+
+        // Markdown Table Formatting with Horizontal Scrolling
         table: ({ children }) => (
           <div className="overflow-x-auto my-2 border border-slate-200 dark:border-slate-700 rounded-md">
             <table className="min-w-full text-xs text-left border-collapse">
@@ -89,7 +112,9 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
         ol: ({ children }) => (
           <ol className="list-decimal list-inside my-1 space-y-1">{children}</ol>
         ),
-        p: ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
+        p: ({ children }) => (
+          <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>
+        ),
       }}
     >
       {content}
@@ -167,7 +192,7 @@ export default function ChatWidget() {
     }
   }, []);
 
-  // Auto-scroll to the bottom on new messages
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -474,5 +499,4 @@ export default function ChatWidget() {
       )}
     </>
   );
-                }
-        
+                          }
